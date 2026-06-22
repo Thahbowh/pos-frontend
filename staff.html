@@ -1,0 +1,2898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tavern — Staff POS</title>
+
+  <script>
+    (function () {
+      const user  = JSON.parse(localStorage.getItem('user')  || 'null');
+      const token = localStorage.getItem('token');
+      if (!user || !token || !['staff','admin'].includes(user.role)) {
+        window.location.replace('index.html');
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+  :root {
+    --bg:        #0f0f0f;
+    --surface:   #181818;
+    --surface2:  #222222;
+    --surface3:  #1a1a1a;
+    --border:    #2a2a2a;
+    --border2:   #1e1e1e;
+    --gold:      #f5c842;
+    --gold-dim:  rgba(245,200,66,0.12);
+    --gold-dim2: rgba(245,200,66,0.08);
+    --text:      #ffffff;
+    --muted:     #888888;
+    --muted2:    #555555;
+    --muted3:    #333333;
+    --green:     #22c55e;
+    --green-bg:  rgba(34,197,94,0.1);
+    --red:       #ef4444;
+    --red-bg:    rgba(239,68,68,0.1);
+    --orange:    #f97316;
+    --orange-bg: rgba(249,115,22,0.1);
+    --blue:      #60a5fa;
+    --radius:    8px;
+    --radius-lg: 12px;
+    --font:      Arial, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    height: 100vh;
+    z-index: 100;
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  }
+  .sidebar-brand {
+    padding: 18px 16px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand-name { font-size: 15px; font-weight: 800; color: var(--gold); letter-spacing: 0.3px; }
+  .brand-sub  { font-size: 10px; color: var(--muted2); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  .staff-card {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .staff-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--gold-dim); border: 1px solid rgba(245,200,66,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: var(--gold);
+    flex-shrink: 0; font-family: var(--font-mono);
+  }
+  .staff-name { font-size: 13px; font-weight: 700; color: #ccc; }
+  .staff-role { font-size: 10px; color: var(--muted2); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+  .sidebar-nav {
+    flex: 1; padding: 10px 8px;
+    display: flex; flex-direction: column; gap: 2px;
+    overflow-y: auto;
+  }
+  .nav-item {
+    padding: 10px 12px; border-radius: var(--radius);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    color: var(--muted); display: flex; align-items: center; gap: 9px;
+    transition: all 0.15s; user-select: none;
+  }
+  .nav-item:hover  { background: var(--surface2); color: #ccc; }
+  .nav-item.active { background: var(--gold-dim); color: var(--gold); }
+  .nav-item .nav-icon { font-size: 15px; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto; background: var(--orange); color: #fff;
+    font-size: 10px; font-weight: 800; padding: 2px 7px;
+    border-radius: 20px; font-family: var(--font-mono);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .sidebar-footer { padding: 12px 8px; border-top: 1px solid var(--border); }
+  .logout-btn {
+    width: 100%; padding: 10px 12px;
+    background: transparent; border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--muted);
+    font-size: 12px; font-family: var(--font); cursor: pointer;
+    text-align: left; display: flex; align-items: center; gap: 8px;
+    transition: all 0.15s; font-weight: 600;
+  }
+  .logout-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 99; backdrop-filter: blur(2px);
+  }
+  .sidebar-overlay.open { display: block; }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 13px 20px; display: flex; align-items: center;
+    justify-content: space-between; flex-shrink: 0; gap: 12px;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .hamburger-btn {
+    display: none; background: transparent; border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--muted); font-size: 16px;
+    padding: 6px 10px; cursor: pointer;
+  }
+  .topbar-title { font-size: 15px; font-weight: 800; color: var(--text); }
+  .topbar-sub   { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .topbar-search {
+    padding: 8px 14px; width: 200px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text); font-size: 13px; font-family: var(--font);
+    outline: none; transition: border 0.15s;
+  }
+  .topbar-search:focus { border-color: var(--gold); }
+  .topbar-search::placeholder { color: var(--muted2); }
+
+  .shift-badge {
+    display: flex; align-items: center; gap: 7px; padding: 6px 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; font-size: 12px; color: var(--muted); font-family: var(--font-mono);
+  }
+  .live-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+
+  /* SECTIONS */
+  .sections { flex: 1; overflow: hidden; position: relative; }
+  .section  { display: none; height: 100%; flex-direction: column; overflow: hidden; }
+  .section.active { display: flex; }
+
+  /* CATEGORY BAR */
+  .cat-bar {
+    display: flex; gap: 6px; padding: 12px 16px;
+    border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto;
+  }
+  .cat-bar::-webkit-scrollbar { display: none; }
+  .cat-btn {
+    padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    font-family: var(--font); cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); white-space: nowrap;
+    transition: all 0.15s; letter-spacing: 0.3px;
+  }
+  .cat-btn:hover  { border-color: #444; color: #ccc; }
+  .cat-btn.active { background: var(--gold); border-color: var(--gold); color: #111; }
+
+  /* POS BODY */
+  .pos-body { flex: 1; display: flex; overflow: hidden; }
+
+  /* PRODUCT GRID */
+  .products-area { flex: 1; overflow-y: auto; padding: 14px; }
+  .products-area::-webkit-scrollbar { width: 4px; }
+  .products-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .prod-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .prod-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    display: flex; flex-direction: column;
+    animation: cardIn 0.3s ease both;
+  }
+  @keyframes cardIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .prod-card:nth-child(1){animation-delay:0.03s} .prod-card:nth-child(2){animation-delay:0.06s}
+  .prod-card:nth-child(3){animation-delay:0.09s} .prod-card:nth-child(4){animation-delay:0.12s}
+  .prod-card:nth-child(5){animation-delay:0.15s} .prod-card:nth-child(6){animation-delay:0.18s}
+
+  .prod-card:hover:not(.out-of-stock) { border-color: #3a3a3a; transform: translateY(-2px); }
+  .prod-card.out-of-stock { opacity: 0.4; cursor: not-allowed; }
+
+  .prod-card-img {
+    width: 100%; height: 130px; object-fit: cover;
+    background: #111; display: block;
+  }
+  .prod-card-img-placeholder {
+    width: 100%; height: 130px; background: #111;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.8rem;
+  }
+  .prod-card-body {
+    padding: 11px 12px 12px;
+    display: flex; flex-direction: column; gap: 4px; flex: 1; position: relative;
+  }
+  .prod-name  { font-size: 13px; font-weight: 700; color: #ddd; line-height: 1.3; flex: 1; }
+  .prod-price { font-size: 15px; font-weight: 800; color: var(--gold); font-family: var(--font-mono); }
+  .prod-stock { font-size: 11px; color: var(--muted2); }
+  .prod-stock.low { color: var(--orange); }
+  .prod-stock.out { color: var(--red); }
+
+  .prod-add {
+    position: absolute; top: 10px; right: 10px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--gold-dim); border: 1px solid rgba(245,200,66,0.3);
+    color: var(--gold); font-size: 18px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; padding: 0;
+  }
+  .prod-add:hover { background: var(--gold); color: #111; border-color: var(--gold); }
+  .out-of-stock .prod-add { display: none; }
+
+  .prod-empty {
+    grid-column: 1 / -1; text-align: center;
+    padding: 50px 20px; color: var(--muted3); font-size: 13px;
+  }
+  .prod-empty-icon { font-size: 2.5rem; margin-bottom: 10px; display: block; }
+
+  /* CART */
+  .cart {
+    width: 290px; flex-shrink: 0;
+    background: var(--surface); border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+  .cart-head {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .cart-head-left { display: flex; align-items: center; gap: 8px; }
+  .cart-title { font-size: 13px; font-weight: 800; }
+  .cart-count-badge {
+    font-size: 10px; font-weight: 800; padding: 2px 8px;
+    background: var(--gold-dim); color: var(--gold);
+    border-radius: 20px; font-family: var(--font-mono);
+  }
+  .cart-table-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted2); }
+  .table-select {
+    padding: 4px 8px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 11px; font-family: var(--font); outline: none; cursor: pointer;
+  }
+
+  .cart-items { flex: 1; overflow-y: auto; padding: 4px 0; }
+  .cart-items::-webkit-scrollbar { width: 3px; }
+  .cart-items::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .cart-empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; color: var(--muted3); font-size: 12px; gap: 8px; padding: 20px; text-align: center;
+  }
+  .cart-empty-state span:first-child { font-size: 2.5rem; }
+
+  .cart-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 14px; border-bottom: 1px solid #161616;
+    transition: background 0.1s; animation: itemIn 0.2s ease both;
+  }
+  @keyframes itemIn { from { opacity:0; transform:translateX(8px); } to { opacity:1; transform:translateX(0); } }
+  .cart-item:last-child { border-bottom: none; }
+  .cart-item:hover { background: rgba(255,255,255,0.015); }
+
+  .ci-emoji { font-size: 1.1rem; flex-shrink: 0; }
+  .ci-name  { flex: 1; font-size: 12px; font-weight: 600; color: #ccc; line-height: 1.3; }
+  .ci-qty   { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .qty-btn {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); font-size: 13px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.12s; padding: 0;
+  }
+  .qty-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .qty-num { font-size: 12px; font-weight: 800; min-width: 18px; text-align: center; font-family: var(--font-mono); color: var(--text); }
+  .ci-price { font-size: 12px; font-weight: 800; color: var(--gold); min-width: 46px; text-align: right; font-family: var(--font-mono); flex-shrink: 0; }
+  .ci-del { background: transparent; border: none; color: var(--muted3); font-size: 14px; cursor: pointer; padding: 0 0 0 4px; transition: color 0.15s; line-height: 1; }
+  .ci-del:hover { color: var(--red); }
+
+  .cart-footer { padding: 14px 16px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .cart-line { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .cart-line.total {
+    font-size: 15px; font-weight: 800; color: var(--text);
+    padding-top: 9px; border-top: 1px solid var(--border);
+    margin-top: 4px; margin-bottom: 14px;
+  }
+  .cart-line.total .total-amt { color: var(--gold); font-family: var(--font-mono); }
+
+  .pay-methods { display: flex; gap: 6px; margin-bottom: 10px; }
+  .pay-btn {
+    flex: 1; padding: 7px 0; border-radius: var(--radius);
+    font-size: 10px; font-weight: 800; font-family: var(--font); cursor: pointer;
+    border: 1px solid var(--border); background: transparent; color: var(--muted);
+    transition: all 0.15s; letter-spacing: 0.3px;
+  }
+  .pay-btn:hover  { border-color: #444; color: #ccc; }
+  .pay-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+  .charge-btn {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, #f5c842, #e6a800);
+    border: none; border-radius: 10px; color: #0a0a0a;
+    font-size: 13px; font-weight: 800; font-family: var(--font);
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px;
+  }
+  .charge-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(245,200,66,0.3); }
+  .charge-btn:disabled { opacity: 0.3; cursor: default; transform: none; box-shadow: none; }
+
+  .clear-btn {
+    width: 100%; padding: 8px; margin-top: 7px;
+    background: transparent; border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--muted); font-size: 11px;
+    font-family: var(--font); cursor: pointer; transition: all 0.15s; font-weight: 600;
+  }
+  .clear-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* MY ORDERS */
+  .section-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .section-title { font-size: 16px; font-weight: 800; }
+  .section-sub   { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+
+  .ord-summary-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:14px 20px 0; flex-shrink:0; }
+  .ord-sum-card { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+  .ord-sum-label { font-size:10px; color:var(--muted2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+  .ord-sum-value { font-size:20px; font-weight:800; }
+  .pending-card   { border-left:3px solid var(--orange); } .pending-card   .ord-sum-value { color:var(--orange); }
+  .completed-card { border-left:3px solid var(--green);  } .completed-card .ord-sum-value { color:var(--green);  }
+  .cancelled-card { border-left:3px solid var(--red);    } .cancelled-card .ord-sum-value { color:var(--red);    }
+  .revenue-card   { border-left:3px solid var(--gold);   } .revenue-card   .ord-sum-value { color:var(--gold); font-family:var(--font-mono); font-size:15px; }
+
+  .ord-filters { display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:12px 20px; flex-shrink:0; }
+  .ord-search {
+    flex:1; min-width:180px; padding:8px 12px; background:var(--surface2);
+    border:1px solid var(--border); border-radius:var(--radius); color:var(--text);
+    font-size:13px; font-family:var(--font); outline:none; transition:border 0.15s;
+  }
+  .ord-search:focus { border-color:var(--gold); }
+  .ord-search::placeholder { color:var(--muted2); }
+  .ord-filter-select {
+    padding:8px 10px; background:var(--surface2); border:1px solid var(--border);
+    border-radius:var(--radius); color:var(--text); font-size:12px;
+    font-family:var(--font); cursor:pointer; outline:none;
+  }
+  .ord-filter-select:focus { border-color:var(--gold); }
+  .ord-filter-select option { background:#111; }
+
+  .ord-table-outer { flex:1; overflow-y:auto; margin:0 20px 20px; border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+  .ord-table-outer::-webkit-scrollbar { width:4px; }
+  .ord-table-outer::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .orders-table { width:100%; border-collapse:collapse; background:var(--surface2); }
+  .orders-table thead th {
+    padding:11px 14px; text-align:left; font-size:11px; font-weight:700;
+    color:var(--muted2); text-transform:uppercase; letter-spacing:0.5px;
+    border-bottom:1px solid var(--border); background:var(--surface3); white-space:nowrap;
+  }
+  .orders-table tbody td { padding:12px 14px; font-size:13px; border-bottom:1px solid #1a1a1a; vertical-align:middle; }
+  .orders-table tbody tr:last-child td { border-bottom:none; }
+  .orders-table tbody tr.row-pending   { background:rgba(249,115,22,0.03); }
+  .orders-table tbody tr.row-completed { opacity:0.65; }
+  .orders-table tbody tr.row-cancelled { opacity:0.45; }
+  .orders-table tbody tr:hover { opacity:1 !important; background:rgba(255,255,255,0.025) !important; }
+
+  .status-badge {
+    padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;
+    display:inline-flex; align-items:center; gap:4px; white-space:nowrap;
+  }
+  .status-badge::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor; }
+  .status-badge.pending   { background:var(--orange-bg); color:var(--orange); }
+  .status-badge.completed { background:var(--green-bg);  color:var(--green); }
+  .status-badge.cancelled { background:var(--red-bg);    color:var(--red); }
+
+  .pay-badge { padding:3px 8px; border-radius:5px; font-size:11px; font-weight:600; white-space:nowrap; }
+  .pay-cash   { background:rgba(245,200,66,0.1);  color:var(--gold); }
+  .pay-card   { background:rgba(96,165,250,0.1);  color:var(--blue); }
+  .pay-online { background:rgba(167,139,250,0.1); color:#a78bfa; }
+
+  .tbl-btn { padding:5px 9px; border-radius:6px; font-size:11px; font-weight:700; font-family:var(--font); cursor:pointer; border:none; transition:all 0.15s; white-space:nowrap; }
+  .tbl-view-btn    { background:var(--gold-dim);   color:var(--gold);  } .tbl-view-btn:hover    { background:var(--gold);   color:#111; }
+  .tbl-proceed-btn { background:var(--green-bg);   color:var(--green); } .tbl-proceed-btn:hover { background:var(--green);  color:#fff; }
+  .tbl-cancel-btn  { background:var(--red-bg);     color:var(--red);   } .tbl-cancel-btn:hover  { background:var(--red);    color:#fff; }
+
+  /* ORDER DETAIL MODAL */
+  .ord-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.78); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+  .ord-modal-overlay.open { display:flex; }
+  .ord-modal { background:#141414; border:1px solid #252525; border-radius:var(--radius-lg); padding:24px; width:500px; max-width:95vw; max-height:90vh; overflow-y:auto; animation:modalPop 0.25s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .ord-modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  .ord-modal-title { font-size:16px; font-weight:800; color:var(--gold); }
+  .ord-modal-close { background:transparent; border:none; color:var(--muted); font-size:20px; cursor:pointer; padding:0; line-height:1; }
+  .ord-modal-close:hover { color:var(--red); }
+  .detail-meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .detail-meta-box  { background:#111; border:1px solid #2a2a2a; border-radius:8px; padding:10px 12px; }
+  .detail-meta-label { font-size:11px; color:#555; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.4px; }
+  .detail-meta-value { font-size:13px; color:#fff; font-weight:600; }
+  .detail-items-wrap { background:#1a1a1a; border-radius:8px; overflow:hidden; margin-bottom:16px; }
+  .detail-items-head { padding:10px 14px; border-bottom:1px solid #222; font-size:11px; color:#555; text-transform:uppercase; letter-spacing:0.5px; }
+  .detail-item-row   { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid #222; font-size:13px; }
+  .detail-item-row:last-child { border-bottom:none; }
+  .detail-item-left  { display:flex; align-items:center; flex:1; min-width:0; }
+  .detail-item-img   { width:36px; height:36px; object-fit:cover; border-radius:6px; margin-right:10px; flex-shrink:0; background:#111; }
+  .detail-item-ph    { width:36px; height:36px; border-radius:6px; background:#111; display:flex; align-items:center; justify-content:center; font-size:1.2rem; margin-right:10px; flex-shrink:0; }
+  .detail-item-name  { color:#ddd; }
+  .detail-item-qty   { color:#666; font-size:12px; margin-left:5px; }
+  .detail-item-price { color:var(--gold); font-weight:700; font-family:var(--font-mono); }
+  .detail-total-row  { padding:12px 14px; border-top:1px solid #222; display:flex; justify-content:space-between; align-items:center; }
+  .detail-pay-row    { display:flex; align-items:center; gap:10px; margin-bottom:14px; font-size:13px; color:#aaa; }
+  .detail-pay-select { padding:7px 10px; background:#111; border:1px solid #333; border-radius:6px; color:#fff; font-size:12px; font-family:var(--font); outline:none; cursor:pointer; }
+  .detail-pay-select:focus { border-color:var(--gold); }
+  .detail-pay-select:disabled { opacity:0.55; cursor:not-allowed; background:#0a0a0a; }
+  .det-pay-lock-note { font-size:11px; color:var(--muted2); margin:-8px 0 14px; display:flex; align-items:center; gap:5px; }
+  .detail-actions    { display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
+  .detail-actions button { padding:9px 18px; border-radius:8px; font-size:13px; font-weight:700; font-family:var(--font); cursor:pointer; border:none; transition:all 0.15s; }
+  .det-close-btn   { background:var(--surface2); color:var(--muted); border:1px solid var(--border) !important; }
+  .det-close-btn:hover { color:#fff; }
+  .det-cancel-btn  { background:var(--red-bg);  color:var(--red);   } .det-cancel-btn:hover  { background:var(--red);   color:#fff; }
+  .det-proceed-btn { background:linear-gradient(135deg,#22c55e,#16a34a); color:#fff; } .det-proceed-btn:hover { transform:translateY(-1px); }
+
+  /* STOCK */
+  .stock-area { flex:1; overflow-y:auto; padding:16px 20px; }
+  .stock-area::-webkit-scrollbar { width:4px; }
+  .stock-area::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+  .stock-table-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .stock-table { width: 100%; border-collapse: collapse; }
+  .stock-table th {
+    padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 700;
+    color: var(--muted2); text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border); background: var(--surface3);
+  }
+  .stock-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #1a1a1a; vertical-align: middle; }
+  .stock-table tbody tr:last-child td { border-bottom: none; }
+  .stock-table tbody tr:hover { background: rgba(255,255,255,0.015); }
+  .stock-bar-wrap { width: 80px; background: var(--border); border-radius: 3px; height: 5px; overflow: hidden; }
+  .stock-bar      { height: 100%; border-radius: 3px; transition: width 0.4s; }
+
+  /* END OF SHIFT / ATTENDANCE */
+  .eos-body { flex:1; overflow-y:auto; padding:20px; }
+
+  /* Clock status hero */
+  .clock-hero {
+    background: linear-gradient(135deg, #1a1a1a, #141414);
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 24px; margin-bottom: 18px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .clock-hero::before {
+    content: ''; position: absolute; top: -40%; right: -10%;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,200,66,0.08), transparent 70%);
+  }
+  .clock-status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px;
+  }
+  .clock-status-pill.off-duty { background: var(--surface3); color: var(--muted2); }
+  .clock-status-pill.on-duty  { background: var(--green-bg); color: var(--green); }
+  .clock-status-pill.on-duty::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); animation: pulse 1.5s infinite; }
+
+  .clock-big-time {
+    font-size: 42px; font-weight: 800; font-family: var(--font-mono);
+    color: var(--text); letter-spacing: -1px; margin-bottom: 4px;
+  }
+  .clock-big-date { font-size: 13px; color: var(--muted2); margin-bottom: 18px; }
+
+  .clock-session-info {
+    display: flex; justify-content: center; gap: 28px; margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .clock-session-stat { text-align: center; }
+  .clock-session-stat-val { font-size: 18px; font-weight: 800; color: var(--gold); font-family: var(--font-mono); }
+  .clock-session-stat-lbl { font-size: 10px; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+
+  .clock-action-btn {
+    padding: 16px 40px; border: none; border-radius: 12px;
+    font-size: 15px; font-weight: 800; font-family: var(--font);
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px;
+  }
+  .clock-action-btn.clock-in-btn {
+    background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff;
+  }
+  .clock-action-btn.clock-in-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(34,197,94,0.35); }
+  .clock-action-btn.clock-out-btn {
+    background: linear-gradient(135deg, #f5c842, #e6a800); color: #0a0a0a;
+  }
+  .clock-action-btn.clock-out-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,200,66,0.35); }
+  .clock-action-btn:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
+
+  /* Shift summary grid (after clock-in, shown live) */
+  .eos-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 18px; }
+  .eos-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+  .eos-card-icon { font-size: 1.5rem; margin-bottom: 8px; }
+  .eos-card-val  { font-size: 22px; font-weight: 800; color: var(--gold); font-family: var(--font-mono); }
+  .eos-card-lbl  { font-size: 11px; color: var(--muted2); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+  .eos-breakdown { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 18px; }
+  .eos-bd-head   { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; }
+  .eos-bd-row    { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid #1a1a1a; font-size: 13px; }
+  .eos-bd-row:last-child { border-bottom: none; }
+  .eos-bd-label  { color: #aaa; }
+  .eos-bd-val    { font-weight: 800; color: var(--gold); font-family: var(--font-mono); }
+
+  /* Recent attendance mini-table */
+  .att-history-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .att-history-head { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; }
+  .att-table { width: 100%; border-collapse: collapse; }
+  .att-table th {
+    padding: 9px 14px; text-align: left; font-size: 10px; font-weight: 700;
+    color: var(--muted2); text-transform: uppercase; letter-spacing: 0.4px;
+    border-bottom: 1px solid var(--border); background: var(--surface3);
+  }
+  .att-table td { padding: 10px 14px; font-size: 12px; border-bottom: 1px solid #1a1a1a; }
+  .att-table tbody tr:last-child td { border-bottom: none; }
+  .att-status-chip { padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; }
+  .att-status-chip.present { background: var(--green-bg); color: var(--green); }
+  .att-status-chip.flagged { background: var(--red-bg); color: var(--red); }
+  .att-status-chip.late    { background: var(--orange-bg); color: var(--orange); }
+
+  /* ── CLOCK-OUT MODAL (GPS + selfie + notes) ── */
+  .clockout-modal { width: 440px; max-width: 95vw; }
+  .clockout-step { display: none; }
+  .clockout-step.active { display: block; }
+
+  .co-progress { display: flex; gap: 6px; margin-bottom: 18px; }
+  .co-progress-seg { flex: 1; height: 4px; border-radius: 4px; background: var(--border); transition: background 0.3s; }
+  .co-progress-seg.done   { background: var(--gold); }
+  .co-progress-seg.active { background: var(--gold); opacity: 0.5; }
+
+  .co-step-title { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+  .co-step-sub   { font-size: 12px; color: var(--muted2); margin-bottom: 18px; }
+
+  .co-gps-box {
+    background: #111; border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px; text-align: center; margin-bottom: 14px;
+  }
+  .co-gps-icon { font-size: 2.2rem; margin-bottom: 10px; }
+  .co-gps-status { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .co-gps-status.ok      { color: var(--green); }
+  .co-gps-status.error   { color: var(--red); }
+  .co-gps-status.loading { color: var(--gold); }
+  .co-gps-coords { font-size: 11px; color: var(--muted2); font-family: var(--font-mono); }
+
+  .co-selfie-box {
+    background: #0a0a0a; border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; margin-bottom: 14px; position: relative;
+    aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
+  }
+  .co-selfie-box video, .co-selfie-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .co-selfie-placeholder { color: var(--muted3); font-size: 13px; text-align: center; padding: 20px; }
+  .co-selfie-placeholder .icon { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+
+  .co-notes-input {
+    width: 100%; min-height: 80px; padding: 10px 12px;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-size: 13px; font-family: var(--font); resize: vertical; outline: none;
+  }
+  .co-notes-input:focus { border-color: var(--gold); }
+  .co-notes-input::placeholder { color: var(--muted2); }
+
+  .co-cash-input {
+    width: 100%; padding: 10px 12px;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-size: 14px; font-family: var(--font-mono); outline: none;
+  }
+  .co-cash-input:focus { border-color: var(--gold); }
+
+  .co-nav-row { display: flex; gap: 8px; margin-top: 18px; }
+
+  /* Confirmation screen */
+  .co-confirm-head { text-align: center; margin-bottom: 18px; }
+  .co-confirm-check {
+    width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 12px;
+    background: var(--green-bg); border: 2px solid var(--green);
+    display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+    animation: checkPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes checkPop { from { transform: scale(0); opacity:0; } to { transform: scale(1); opacity:1; } }
+  .co-confirm-title { font-size: 16px; font-weight: 800; color: var(--green); }
+  .co-confirm-sub   { font-size: 12px; color: var(--muted2); margin-top: 3px; }
+
+  .co-confirm-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+  }
+  .co-confirm-cell {
+    background: #111; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+  }
+  .co-confirm-cell.span2 { grid-column: 1 / -1; }
+  .co-confirm-label { font-size: 10px; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+  .co-confirm-value { font-size: 14px; font-weight: 700; color: var(--text); }
+  .co-confirm-value.gold  { color: var(--gold); font-family: var(--font-mono); }
+  .co-confirm-value.green { color: var(--green); }
+  .co-confirm-value.red   { color: var(--red); }
+
+  .co-verify-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .co-verify-chip {
+    flex: 1; display: flex; align-items: center; gap: 7px; padding: 9px 12px;
+    border-radius: 8px; font-size: 12px; font-weight: 700;
+  }
+  .co-verify-chip.ok   { background: var(--green-bg); color: var(--green); }
+  .co-verify-chip.fail { background: var(--red-bg);   color: var(--red); }
+
+  /* RECEIPT MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75); z-index: 500;
+    align-items: center; justify-content: center; backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #141414; border: 1px solid #252525; border-radius: var(--radius-lg);
+    padding: 26px; width: 400px; max-width: 95vw;
+    animation: modalPop 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes modalPop { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .modal-title { font-size: 16px; font-weight: 800; color: var(--gold); }
+  .modal-close { background: transparent; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 0; line-height: 1; transition: color 0.15s; }
+  .modal-close:hover { color: var(--red); }
+
+  .receipt-divider { border: none; border-top: 1px dashed var(--border); margin: 14px 0; }
+  .receipt-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: #aaa; }
+  .receipt-row strong { color: var(--text); }
+  .receipt-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; margin-top: 10px; }
+  .receipt-total-amt { color: var(--gold); font-family: var(--font-mono); }
+
+  /* Tendered amount / change */
+  .tender-box {
+    background: #111; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; margin-top: 14px;
+  }
+  .tender-label { font-size: 11px; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px; }
+  .tender-input-row { display: flex; align-items: center; gap: 8px; }
+  .tender-currency { font-size: 16px; font-weight: 800; color: var(--muted); }
+  .tender-input {
+    flex: 1; padding: 10px 12px; font-size: 18px; font-weight: 800;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-family: var(--font-mono); outline: none; transition: border 0.15s;
+  }
+  .tender-input:focus { border-color: var(--gold); }
+  .tender-input.insufficient { border-color: var(--red); }
+
+  .tender-quick-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .tender-quick-btn {
+    flex: 1; min-width: 56px; padding: 7px 0; border-radius: 7px;
+    font-size: 12px; font-weight: 700; font-family: var(--font-mono); cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface2); color: var(--muted);
+    transition: all 0.15s;
+  }
+  .tender-quick-btn:hover  { border-color: var(--gold); color: var(--gold); }
+  .tender-quick-btn.exact  { background: var(--gold-dim); border-color: rgba(245,200,66,0.3); color: var(--gold); }
+
+  .tender-result-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);
+  }
+  .tender-result-label { font-size: 13px; color: #aaa; }
+  .tender-result-value { font-size: 19px; font-weight: 800; font-family: var(--font-mono); }
+  .tender-result-value.ok  { color: var(--green); }
+  .tender-result-value.bad { color: var(--red); }
+
+  .tender-hint { font-size: 11px; color: var(--red); margin-top: 6px; display: none; }
+  .tender-hint.show { display: block; }
+
+  /* ── PRINTED RECEIPT (final, monospace till-slip style) ── */
+  .print-receipt-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8); z-index: 550;
+    align-items: center; justify-content: center; backdrop-filter: blur(4px);
+  }
+  .print-receipt-overlay.open { display: flex; }
+
+  .print-receipt-card {
+    background: #fdfdfa; color: #111; border-radius: 4px;
+    width: 330px; max-width: 92vw; max-height: 88vh; overflow-y: auto;
+    padding: 22px 20px 14px;
+    font-family: var(--font-mono); font-size: 12.5px; line-height: 1.55;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: modalPop 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .print-receipt-card::-webkit-scrollbar { width: 4px; }
+
+  .pr-center  { text-align: center; }
+  .pr-bold    { font-weight: 700; }
+  .pr-line    { border-top: 1px dashed #999; margin: 8px 0; }
+  .pr-row     { display: flex; justify-content: space-between; gap: 8px; white-space: pre; }
+  .pr-row span:first-child { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+  .pr-title   { font-size: 15px; font-weight: 800; letter-spacing: 1px; }
+  .pr-sub     { font-size: 11px; color: #555; }
+  .pr-total-row { font-size: 14px; font-weight: 800; }
+  .pr-footer  { font-size: 11px; color: #444; margin-top: 4px; }
+
+  .pr-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .pr-btn {
+    flex: 1; padding: 9px 0; border-radius: 6px; border: 1px solid #ccc;
+    background: #fff; color: #111; font-size: 12px; font-weight: 700;
+    font-family: var(--font); cursor: pointer; transition: all 0.15s;
+  }
+  .pr-btn:hover { background: #f0f0f0; }
+  .pr-btn.pr-btn-primary { background: #111; color: #fff; border-color: #111; }
+  .pr-btn.pr-btn-primary:hover { background: #2a2a2a; }
+
+  @media print {
+    body * { visibility: hidden; }
+    .print-receipt-card, .print-receipt-card * { visibility: visible; }
+    .print-receipt-card { position: fixed; top: 0; left: 0; width: 100%; box-shadow: none; }
+    .pr-actions { display: none; }
+  }
+
+  .modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+  .btn-ghost {
+    flex: 1; padding: 10px; background: transparent; border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--muted); font-size: 13px; font-weight: 700;
+    font-family: var(--font); cursor: pointer; transition: all 0.15s;
+  }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+  .btn-primary {
+    flex: 2; padding: 10px;
+    background: linear-gradient(135deg, #f5c842, #e6a800);
+    border: none; border-radius: var(--radius); color: #0a0a0a;
+    font-size: 13px; font-weight: 800; font-family: var(--font); cursor: pointer; transition: all 0.2s;
+  }
+  .btn-primary:hover { transform: translateY(-1px); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--green); color: #fff; padding: 9px 18px;
+    border-radius: 20px; font-size: 12px; font-weight: 700; font-family: var(--font);
+    opacity: 0; transition: all 0.3s; pointer-events: none;
+    white-space: nowrap; z-index: 600;
+  }
+  .toast.show  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--red); }
+  .toast.warn  { background: var(--orange); }
+
+  /* NEW ORDER ALERT (online/customer orders) */
+  .new-order-banner {
+    position: fixed; top: 16px; right: 16px; z-index: 700;
+    width: 320px; max-width: calc(100vw - 32px);
+    background: linear-gradient(135deg, #1d1d1d, #161616);
+    border: 1px solid var(--gold); border-radius: 12px;
+    padding: 14px 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(245,200,66,0.15);
+    display: flex; gap: 12px; align-items: flex-start;
+    transform: translateX(120%); opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s;
+    cursor: pointer;
+  }
+  .new-order-banner.show { transform: translateX(0); opacity: 1; }
+  .new-order-banner-icon {
+    font-size: 1.8rem; flex-shrink: 0;
+    animation: bannerBounce 0.6s ease 2;
+  }
+  @keyframes bannerBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+  .new-order-banner-body { flex: 1; min-width: 0; }
+  .new-order-banner-title { font-size: 13px; font-weight: 800; color: var(--gold); margin-bottom: 3px; }
+  .new-order-banner-sub   { font-size: 12px; color: #ccc; line-height: 1.4; }
+  .new-order-banner-total { font-size: 12px; color: var(--muted2); margin-top: 4px; font-family: var(--font-mono); }
+  .new-order-banner-close {
+    background: transparent; border: none; color: var(--muted2);
+    font-size: 14px; cursor: pointer; padding: 0; line-height: 1; flex-shrink: 0;
+  }
+  .new-order-banner-close:hover { color: #fff; }
+
+  .nav-badge.new-order-pulse {
+    animation: newOrderPulse 0.9s ease infinite;
+  }
+  @keyframes newOrderPulse {
+    0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(249,115,22,0.6); }
+    50%     { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(249,115,22,0); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 240px; }
+    .sidebar.open { transform: translateX(0); }
+    .hamburger-btn { display: block; }
+    .topbar-search { width: 150px; }
+    .cart { width: 260px; }
+    .prod-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    .eos-grid { grid-template-columns: repeat(2,1fr); }
+  }
+  @media (max-width: 620px) {
+    .cart { width: 240px; }
+    .topbar-search { display: none; }
+    .shift-badge   { display: none; }
+    .prod-grid { grid-template-columns: repeat(2,1fr); }
+  }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">🍺 TAVERN POS</div>
+    <div class="brand-sub">Staff Terminal</div>
+  </div>
+  <div class="staff-card">
+    <div class="staff-avatar" id="staff-initials">??</div>
+    <div>
+      <div class="staff-name" id="staff-name">Loading...</div>
+      <div class="staff-role" id="staff-role">Staff</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showSection('pos', this)">
+      <span class="nav-icon">🛒</span> New Order
+    </div>
+    <div class="nav-item" onclick="showSection('my-orders', this)">
+      <span class="nav-icon">📋</span> My Orders
+      <span class="nav-badge" id="pending-badge" style="display:none;">0</span>
+    </div>
+    <div class="nav-item" onclick="showSection('stock', this)">
+      <span class="nav-icon">📦</span> Stock Check
+    </div>
+    <div class="nav-item" onclick="showSection('eos', this)">
+      <span class="nav-icon">🌙</span> End of Shift
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">🚪 Log Out</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+      <div>
+        <div class="topbar-title" id="topbar-title">New Order</div>
+        <div class="topbar-sub" id="topbar-sub">Loading...</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <input class="topbar-search" type="text" id="prod-search"
+             placeholder="🔎 Quick search..." oninput="filterProducts()">
+      <div class="shift-badge">
+        <div class="live-dot"></div>
+        <span id="clock">--:--</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sections">
+
+    <!-- POS — NEW ORDER -->
+    <div id="pos" class="section active">
+      <div class="cat-bar" id="cat-bar">
+        <button class="cat-btn active" onclick="setCat('all', this)">All</button>
+        <button class="cat-btn" onclick="setCat('beer', this)">🍺 Beer</button>
+        <button class="cat-btn" onclick="setCat('cider', this)">🍹 Cider</button>
+        <button class="cat-btn" onclick="setCat('whiskey', this)">🥃 Whiskey</button>
+        <button class="cat-btn" onclick="setCat('wine', this)">🍷 Wine</button>
+        <button class="cat-btn" onclick="setCat('vodka', this)">🍸 Vodka</button>
+        <button class="cat-btn" onclick="setCat('food', this)">🍗 Food</button>
+        <button class="cat-btn" onclick="setCat('hubbly', this)">💨 Hubbly</button>
+        <button class="cat-btn" onclick="setCat('cigarettes', this)">🚬 Smokes</button>
+      </div>
+
+      <div class="pos-body">
+        <div class="products-area">
+          <div class="prod-grid" id="prod-grid">
+            <div class="prod-empty">
+              <span class="prod-empty-icon">⏳</span>
+              Loading products...
+            </div>
+          </div>
+        </div>
+
+        <div class="cart">
+          <div class="cart-head">
+            <div class="cart-head-left">
+              <span class="cart-title">Order</span>
+              <span class="cart-count-badge" id="cart-count">0</span>
+            </div>
+            <div class="cart-table-row">
+              <span>Table</span>
+              <select class="table-select" id="table-select">
+                <option value="">—</option>
+                <option value="1">T1</option>
+                <option value="2">T2</option>
+                <option value="3">T3</option>
+                <option value="4">T4</option>
+                <option value="5">T5</option>
+                <option value="6">T6</option>
+                <option value="bar">Bar</option>
+                <option value="takeaway">Takeaway</option>
+              </select>
+            </div>
+          </div>
+          <div class="cart-items" id="cart-items">
+            <div class="cart-empty-state">
+              <span>🛒</span>
+              <span>Tap a product to start an order</span>
+            </div>
+          </div>
+          <div class="cart-footer">
+            <div class="cart-line"><span>Subtotal</span><span id="cart-subtotal">R 0.00</span></div>
+            <div class="cart-line total">
+              <span>Total</span>
+              <span class="total-amt" id="cart-total">R 0.00</span>
+            </div>
+            <div class="pay-methods">
+              <button class="pay-btn active" onclick="setPay('cash', this)">💵 Cash</button>
+              <button class="pay-btn" onclick="setPay('card', this)">💳 Card</button>
+            </div>
+            <button class="charge-btn" id="charge-btn" disabled onclick="openReceipt()">Charge — R 0.00</button>
+            <button class="clear-btn" onclick="clearCart()">Clear Order</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /pos -->
+
+    <!-- MY ORDERS -->
+    <div id="my-orders" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">My Orders</div>
+          <div class="section-sub" id="orders-sub">Loading...</div>
+        </div>
+        <button class="pay-btn" style="width:auto;padding:7px 14px;" onclick="loadMyOrders()">↻ Refresh</button>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="ord-summary-row">
+        <div class="ord-sum-card pending-card">
+          <div class="ord-sum-label">Pending</div>
+          <div class="ord-sum-value" id="ord-count-pending">0</div>
+        </div>
+        <div class="ord-sum-card completed-card">
+          <div class="ord-sum-label">Completed</div>
+          <div class="ord-sum-value" id="ord-count-completed">0</div>
+        </div>
+        <div class="ord-sum-card cancelled-card">
+          <div class="ord-sum-label">Cancelled</div>
+          <div class="ord-sum-value" id="ord-count-cancelled">0</div>
+        </div>
+        <div class="ord-sum-card revenue-card">
+          <div class="ord-sum-label">Revenue</div>
+          <div class="ord-sum-value" id="ord-count-revenue">R 0</div>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="ord-filters">
+        <input class="ord-search" type="text" id="ord-search"
+               placeholder="🔎 Search by order ID or customer..." oninput="filterOrders()">
+        <select class="ord-filter-select" id="ord-status-filter" onchange="filterOrders()">
+          <option value="all">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <select class="ord-filter-select" id="ord-pay-filter" onchange="filterOrders()">
+          <option value="all">All Payments</option>
+          <option value="cash">💵 Cash</option>
+          <option value="card">💳 Card</option>
+          <option value="online">📱 Online</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="ord-table-outer">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Time</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ORDER DETAIL MODAL -->
+    <div class="ord-modal-overlay" id="ord-detail-modal" onclick="if(event.target===this)closeOrderModal()">
+      <div class="ord-modal">
+        <div class="ord-modal-head">
+          <div class="ord-modal-title" id="det-order-id">Order #0000</div>
+          <button class="ord-modal-close" onclick="closeOrderModal()">✕</button>
+        </div>
+
+        <div class="detail-meta-grid">
+          <div class="detail-meta-box">
+            <div class="detail-meta-label">Customer</div>
+            <div class="detail-meta-value" id="det-customer">—</div>
+          </div>
+          <div class="detail-meta-box">
+            <div class="detail-meta-label">Time</div>
+            <div class="detail-meta-value" id="det-time">—</div>
+          </div>
+          <div class="detail-meta-box">
+            <div class="detail-meta-label">Table</div>
+            <div class="detail-meta-value" id="det-table">—</div>
+          </div>
+          <div class="detail-meta-box">
+            <div class="detail-meta-label">Status</div>
+            <div id="det-status">—</div>
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div class="detail-items-wrap">
+          <div class="detail-items-head">Items Ordered</div>
+          <div id="det-items-list"></div>
+          <div class="detail-total-row">
+            <span style="font-size:13px;color:#888;">Total</span>
+            <span style="font-size:16px;font-weight:800;color:var(--gold);font-family:var(--font-mono);" id="det-total">R 0.00</span>
+          </div>
+        </div>
+
+        <!-- Payment method chooser -->
+        <div class="detail-pay-row">
+          <span>Payment:</span>
+          <select class="detail-pay-select" id="det-pay-select">
+            <option value="cash">💵 Cash</option>
+            <option value="card">💳 Card</option>
+            <option value="online" disabled>📱 Online (auto-detected only)</option>
+          </select>
+        </div>
+        <div class="det-pay-lock-note" id="det-pay-lock-note" style="display:none;"></div>
+
+        <!-- Actions -->
+        <div class="detail-actions">
+          <button class="detail-actions button det-close-btn" onclick="closeOrderModal()">Close</button>
+          <button class="detail-actions button det-cancel-btn" id="det-cancel-btn" onclick="detailCancelOrder()">✕ Cancel Order</button>
+          <button class="detail-actions button det-proceed-btn" id="det-proceed-btn" onclick="detailProceedOrder()">✓ Mark Completed</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STOCK CHECK -->
+    <div id="stock" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Stock Check</div>
+          <div class="section-sub">Read-only view of current inventory levels</div>
+        </div>
+        <button class="pay-btn" style="width:auto;padding:7px 14px;" onclick="loadStock()">↻ Refresh</button>
+      </div>
+      <div class="stock-area">
+        <div class="stock-table-wrap">
+          <table class="stock-table">
+            <thead>
+              <tr>
+                <th>Product</th><th>Category</th><th>Stock</th><th>Level</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="stock-body">
+              <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted2);">Loading stock...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- END OF SHIFT / ATTENDANCE -->
+    <div id="eos" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Attendance &amp; Shift</div>
+          <div class="section-sub">Clock in, clock out, and view your shift summary</div>
+        </div>
+      </div>
+      <div class="eos-body">
+
+        <!-- Clock hero -->
+        <div class="clock-hero">
+          <div class="clock-status-pill off-duty" id="clock-status-pill">⚪ Off Duty</div>
+          <div class="clock-big-time" id="clock-hero-time">--:--:--</div>
+          <div class="clock-big-date" id="clock-hero-date">—</div>
+
+          <div class="clock-session-info" id="clock-session-info" style="display:none;">
+            <div class="clock-session-stat">
+              <div class="clock-session-stat-val" id="cs-clockin">—</div>
+              <div class="clock-session-stat-lbl">Clocked In</div>
+            </div>
+            <div class="clock-session-stat">
+              <div class="clock-session-stat-val" id="cs-elapsed">0h 0m</div>
+              <div class="clock-session-stat-lbl">Elapsed</div>
+            </div>
+            <div class="clock-session-stat">
+              <div class="clock-session-stat-val" id="cs-overtime">0h</div>
+              <div class="clock-session-stat-lbl">Overtime</div>
+            </div>
+          </div>
+
+          <button class="clock-action-btn clock-in-btn" id="clock-in-btn" onclick="startClockIn()">🟢 Clock In</button>
+          <button class="clock-action-btn clock-out-btn" id="clock-out-btn" onclick="openClockOutModal()" style="display:none;">🔴 Clock Out</button>
+        </div>
+
+        <!-- Live shift summary (orders / sales) -->
+        <div class="eos-grid">
+          <div class="eos-card">
+            <div class="eos-card-icon">🧾</div>
+            <div class="eos-card-val" id="eos-orders">0</div>
+            <div class="eos-card-lbl">Orders Taken</div>
+          </div>
+          <div class="eos-card">
+            <div class="eos-card-icon">💰</div>
+            <div class="eos-card-val" id="eos-revenue">R 0</div>
+            <div class="eos-card-lbl">Total Revenue</div>
+          </div>
+          <div class="eos-card">
+            <div class="eos-card-icon">🛒</div>
+            <div class="eos-card-val" id="eos-items">0</div>
+            <div class="eos-card-lbl">Items Sold</div>
+          </div>
+        </div>
+        <div class="eos-breakdown">
+          <div class="eos-bd-head">Payment Breakdown</div>
+          <div class="eos-bd-row"><span class="eos-bd-label">💵 Cash</span><span class="eos-bd-val" id="eos-cash">R 0.00</span></div>
+          <div class="eos-bd-row"><span class="eos-bd-label">💳 Card</span><span class="eos-bd-val" id="eos-card">R 0.00</span></div>
+          <div class="eos-bd-row"><span class="eos-bd-label">📱 Online</span><span class="eos-bd-val" id="eos-online">R 0.00</span></div>
+        </div>
+
+        <!-- Attendance history -->
+        <div class="att-history-wrap">
+          <div class="att-history-head">Recent Attendance</div>
+          <table class="att-table">
+            <thead>
+              <tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>OT</th><th>Status</th></tr>
+            </thead>
+            <tbody id="att-history-body">
+              <tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted2);">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLOCK-IN MODAL -->
+    <div class="modal-overlay" id="clockin-modal">
+      <div class="modal">
+        <div class="modal-head">
+          <div class="modal-title">🟢 Clock In</div>
+          <button class="modal-close" onclick="closeClockInModal()">✕</button>
+        </div>
+
+        <div class="co-step-sub">We need your location to verify you're clocking in from an authorized site.</div>
+
+        <div class="co-gps-box" id="ci-gps-box">
+          <div class="co-gps-icon">📍</div>
+          <div class="co-gps-status loading" id="ci-gps-status">Waiting for location permission...</div>
+          <div class="co-gps-coords" id="ci-gps-coords">—</div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-ghost" onclick="closeClockInModal()">Cancel</button>
+          <button class="btn-primary" id="ci-confirm-btn" onclick="confirmClockIn()" disabled>✓ Confirm Clock In</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLOCK-OUT MODAL — multi-step: GPS -> Selfie -> Notes -> Confirmation -->
+    <div class="modal-overlay" id="clockout-modal">
+      <div class="modal clockout-modal">
+        <div class="modal-head">
+          <div class="modal-title">🔴 Clock Out</div>
+          <button class="modal-close" onclick="closeClockOutModal()">✕</button>
+        </div>
+
+        <div class="co-progress">
+          <div class="co-progress-seg" id="co-seg-1"></div>
+          <div class="co-progress-seg" id="co-seg-2"></div>
+          <div class="co-progress-seg" id="co-seg-3"></div>
+          <div class="co-progress-seg" id="co-seg-4"></div>
+        </div>
+
+        <!-- STEP 1: GPS -->
+        <div class="clockout-step" id="co-step-1">
+          <div class="co-step-title">📍 Verify Location</div>
+          <div class="co-step-sub">Confirming you're clocking out from an authorized location.</div>
+          <div class="co-gps-box" id="co-gps-box">
+            <div class="co-gps-icon">📍</div>
+            <div class="co-gps-status loading" id="co-gps-status">Requesting location...</div>
+            <div class="co-gps-coords" id="co-gps-coords">—</div>
+          </div>
+          <div class="co-nav-row">
+            <button class="btn-ghost" onclick="closeClockOutModal()">Cancel</button>
+            <button class="btn-primary" id="co-step1-next" onclick="coGoToStep(2)" disabled>Next →</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Selfie -->
+        <div class="clockout-step" id="co-step-2">
+          <div class="co-step-title">🤳 Identity Verification</div>
+          <div class="co-step-sub">Take a quick selfie to confirm it's really you clocking out.</div>
+          <div class="co-selfie-box" id="co-selfie-box">
+            <div class="co-selfie-placeholder" id="co-selfie-placeholder">
+              <span class="icon">📷</span>
+              Camera will appear here
+            </div>
+          </div>
+          <div class="co-nav-row">
+            <button class="btn-ghost" onclick="coGoToStep(1)">← Back</button>
+            <button class="btn-ghost" id="co-cam-btn" onclick="startSelfieCam()">📷 Open Camera</button>
+            <button class="btn-primary" id="co-step2-next" onclick="coGoToStep(3)" disabled>Next →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Notes + cash -->
+        <div class="clockout-step" id="co-step-3">
+          <div class="co-step-title">📝 End-of-Shift Notes</div>
+          <div class="co-step-sub">Optional — add any notes for the next shift or management.</div>
+          <textarea class="co-notes-input" id="co-notes" placeholder="e.g. Ran low on Heineken, restocked from storeroom. Table 4 left a complaint about wait time..."></textarea>
+          <div style="margin-top:12px;">
+            <label style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px;">Cash in drawer (optional)</label>
+            <input class="co-cash-input" id="co-end-cash" type="number" step="0.01" placeholder="R 0.00">
+          </div>
+          <div class="co-nav-row">
+            <button class="btn-ghost" onclick="coGoToStep(2)">← Back</button>
+            <button class="btn-primary" onclick="submitClockOut()" id="co-submit-btn">✓ Confirm Clock Out</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: Confirmation -->
+        <div class="clockout-step" id="co-step-4">
+          <div class="co-confirm-head">
+            <div class="co-confirm-check">✓</div>
+            <div class="co-confirm-title">Clocked Out Successfully</div>
+            <div class="co-confirm-sub" id="co-confirm-sub">Have a great rest of your day</div>
+          </div>
+
+          <div class="co-confirm-grid">
+            <div class="co-confirm-cell"><div class="co-confirm-label">Employee</div><div class="co-confirm-value" id="cf-employee">—</div></div>
+            <div class="co-confirm-cell"><div class="co-confirm-label">Employee ID</div><div class="co-confirm-value" id="cf-empid">—</div></div>
+            <div class="co-confirm-cell"><div class="co-confirm-label">Date</div><div class="co-confirm-value" id="cf-date">—</div></div>
+            <div class="co-confirm-cell"><div class="co-confirm-label">Status</div><div class="co-confirm-value" id="cf-status">—</div></div>
+            <div class="co-confirm-cell"><div class="co-confirm-label">Clock In</div><div class="co-confirm-value gold" id="cf-clockin">—</div></div>
+            <div class="co-confirm-cell"><div class="co-confirm-label">Clock Out</div><div class="co-confirm-value gold" id="cf-clockout">—</div></div>
+            <div class="co-confirm-cell"><div class="co-confirm-label">Hours Worked</div><div class="co-confirm-value gold" id="cf-hours">—</div></div>
+            <div class="co-confirm-cell"><div class="co-confirm-label">Overtime</div><div class="co-confirm-value gold" id="cf-overtime">—</div></div>
+          </div>
+
+          <div class="co-verify-row">
+            <div class="co-verify-chip" id="cf-gps-chip">📍 Location: —</div>
+            <div class="co-verify-chip" id="cf-selfie-chip">🤳 Identity: —</div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn-primary" style="flex:1;" onclick="closeClockOutModal()">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /sections -->
+</div><!-- /main -->
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="receipt-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">🧾 Order Receipt</div>
+      <button class="modal-close" onclick="closeReceipt()">✕</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:4px;">
+      <span id="receipt-id">#ORDER-0000</span>
+      <span id="receipt-time">—</span>
+    </div>
+    <div style="font-size:12px;color:var(--muted2);margin-bottom:12px;">
+      Table: <strong id="receipt-table">—</strong> &nbsp;·&nbsp; Payment: <strong id="receipt-pay">—</strong>
+    </div>
+    <hr class="receipt-divider">
+    <div id="receipt-items"></div>
+    <hr class="receipt-divider">
+    <div class="receipt-total">
+      <span>Total</span>
+      <span class="receipt-total-amt" id="receipt-total">R 0.00</span>
+    </div>
+
+    <!-- Amount tendered + change (cash & card) -->
+    <div class="tender-box" id="tender-box">
+      <div class="tender-label">Amount Tendered</div>
+      <div class="tender-input-row">
+        <span class="tender-currency">R</span>
+        <input class="tender-input" type="number" step="0.01" min="0" id="tender-input"
+               placeholder="0.00" oninput="onTenderInput()">
+      </div>
+      <div class="tender-quick-row" id="tender-quick-row"></div>
+      <div class="tender-hint" id="tender-hint">Amount must be at least the order total</div>
+      <div class="tender-result-row">
+        <span class="tender-result-label">Change Due</span>
+        <span class="tender-result-value" id="tender-change">R 0.00</span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeReceipt()">Cancel</button>
+      <button class="btn-primary" id="receipt-confirm-btn" onclick="confirmCharge()" disabled>✓ Confirm &amp; Charge</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRINTED TAX INVOICE RECEIPT (shown after a successful charge) -->
+<div class="print-receipt-overlay" id="print-receipt-overlay">
+  <div class="print-receipt-card" id="print-receipt-card"><!-- filled by JS --></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="new-order-banner" id="new-order-banner" onclick="onBannerClick()">
+  <div class="new-order-banner-icon">🛎️</div>
+  <div class="new-order-banner-body">
+    <div class="new-order-banner-title">New Online Order!</div>
+    <div class="new-order-banner-sub" id="new-order-banner-sub">—</div>
+    <div class="new-order-banner-total" id="new-order-banner-total">—</div>
+  </div>
+  <button class="new-order-banner-close" onclick="event.stopPropagation(); dismissOrderBanner()">✕</button>
+</div>
+
+<!-- RECEIPT VIEW MODAL (for viewing previously completed orders) -->
+
+<div class="modal-overlay" id="receipt-view-modal">
+  <div class="modal" style="max-width:500px;">
+
+    <div class="modal-head">
+      <h3>🖨 Receipt</h3>
+      <button onclick="closeReceiptView()">✕</button>
+    </div>
+
+    <div id="receipt-content">
+
+      <div style="text-align:center;margin-bottom:15px;">
+        <h2>POS SYSTEM</h2>
+        <p>Bolata, South Africa</p>
+      </div>
+
+      <div id="receipt-body"></div>
+
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeReceiptView()">
+        Close
+      </button>
+
+      <button class="btn-primary" onclick="printCurrentReceipt()">
+        🖨 Print
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════════════════ */
+const API   = 'http://192.168.8.152:5000';
+const token = localStorage.getItem('token');
+const user  = JSON.parse(localStorage.getItem('user') || '{}');
+
+// Receipt / tax invoice settings — prices are VAT-inclusive (standard SA practice)
+const BUSINESS_NAME = 'TAVERN POS';
+const VAT_RATE       = 0.15;
+const VAT_NUMBER     = '4000000000'; // TODO: replace with your real VAT registration number
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+
+/* ══════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════ */
+let allProducts = [];
+let currentCat  = 'all';
+let cart        = {};
+let payMethod   = 'cash';
+let shiftOrders = [];
+let currentReceiptOrder = null;
+
+/* ── New-order notification tracking ── */
+let seenOrderIds   = null;   // null = not yet initialised (first poll just primes the list, no popup spam)
+const POLL_MS      = 5000;   // check for new online orders every 5s
+let notifAudioCtx  = null;
+
+/* ══════════════════════════════════════════════════════
+   CATEGORY HELPERS
+══════════════════════════════════════════════════════ */
+const CAT_EMOJI = {
+  beer:'🍺', cider:'🍹', whiskey:'🥃', wine:'🍷',
+  vodka:'🍸', food:'🍗', hubbly:'💨', cigarettes:'🚬'
+};
+const catEmoji = c => CAT_EMOJI[(c||'').toLowerCase()] || '📦';
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  initStaffInfo();
+  updateClock();
+  setInterval(updateClock, 30000);
+  loadProducts();
+  loadMyOrders();
+
+  // Start watching for new online/customer orders the moment they're placed
+  pollForNewOrders();                       // run once immediately to prime seenOrderIds
+  setInterval(pollForNewOrders, POLL_MS);
+});
+
+
+
+function initStaffInfo() {
+  const name     = user.name || user.username || 'Staff';
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('staff-name').textContent     = name;
+  document.getElementById('staff-initials').textContent = initials;
+  document.getElementById('staff-role').textContent     = (user.role || 'staff').charAt(0).toUpperCase() + (user.role || 'staff').slice(1);
+}
+
+function updateClock() {
+  const now  = new Date();
+  const time = now.toLocaleTimeString('en-ZA', { hour:'2-digit', minute:'2-digit' });
+  const date = now.toLocaleDateString('en-ZA', { weekday:'short', day:'numeric', month:'short' });
+  const el  = document.getElementById('clock');
+  const sub = document.getElementById('topbar-sub');
+  if (el)  el.textContent  = time;
+  if (sub) sub.textContent = date;
+}
+
+/* ══════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════ */
+const SECTION_TITLES = {
+  'pos':       'New Order',
+  'my-orders': 'My Orders',
+  'stock':     'Stock Check',
+  'eos':       'End of Shift',
+};
+
+function showSection(id, navEl) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  document.getElementById('topbar-title').textContent = SECTION_TITLES[id] || id;
+  closeSidebar();
+  if (id === 'my-orders') loadMyOrders();
+  if (id === 'stock')     loadStock();
+  if (id === 'eos')       loadEos();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+}
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ══════════════════════════════════════════════════════
+   PRODUCTS — LOAD
+══════════════════════════════════════════════════════ */
+async function loadProducts() {
+  const grid = document.getElementById('prod-grid');
+  if (grid) grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon">⏳</span>Loading products...</div>`;
+
+  try {
+    const res = await fetch(`${API}/products`, {
+      method: 'GET',
+      headers: authHeaders()
+    });
+
+    // Read raw text first so we can show it if JSON parse fails
+    const raw = await res.text();
+    console.log('Products raw response:', raw);
+
+    if (!res.ok) throw new Error(`Server error ${res.status}: ${raw.slice(0, 120)}`);
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      throw new Error(`Server returned non-JSON: ${raw.slice(0, 120)}`);
+    }
+
+    allProducts = Array.isArray(data) ? data : (data.products || []);
+
+    if (!allProducts.length) {
+      if (grid) grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon">📦</span>No products found</div>`;
+      return;
+    }
+
+    filterProducts();
+
+  } catch (err) {
+    console.error('loadProducts error:', err);
+    if (grid) grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon">
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="42"
+         height="42"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="#ff6b6b"
+         stroke-width="2"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    </span>
+
+    Could not load products.
+   <br>
+  <small style="color:var(--muted2)">
+    ${err.message}
+  </small>
+</div>`;
+    showToast('Could not load products', 'error');
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   PRODUCTS — FILTER & RENDER
+══════════════════════════════════════════════════════ */
+function setCat(cat, el) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  filterProducts();
+}
+
+function filterProducts() {
+  const search = (document.getElementById('prod-search')?.value || '').toLowerCase().trim();
+
+  const filtered = allProducts.filter(p => {
+    const matchCat    = currentCat === 'all' || (p.category || '').toLowerCase() === currentCat;
+    const matchSearch = !search
+      || (p.name || '').toLowerCase().includes(search)
+      || (p.category || '').toLowerCase().includes(search);
+    return matchCat && matchSearch;
+  });
+
+  renderProductGrid(filtered);
+}
+
+function renderProductGrid(products) {
+  const grid = document.getElementById('prod-grid');
+  if (!grid) return;
+
+  if (!products.length) {
+    grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon">🔍</span>No products match</div>`;
+    return;
+  }
+
+  grid.innerHTML = products.map(p => {
+    const emoji   = catEmoji(p.category);
+    const isOut   = p.stock <= 0;
+    const isLow   = !isOut && p.stock <= (p.lowStockThreshold || p.lowStockAlert || 6);
+    const stockCls = isOut ? 'out' : isLow ? 'low' : '';
+    const stockTxt = isOut ? '❌ Out of stock' : isLow ? `⚠ Only ${p.stock} left` : `✓ ${p.stock} in stock`;
+    const imgHtml  = p.img
+      ? `<img class="prod-card-img" src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=\\'prod-card-img-placeholder\\'>${emoji}</div>'">`
+      : `<div class="prod-card-img-placeholder">${emoji}</div>`;
+
+    return `
+      <div class="prod-card ${isOut ? 'out-of-stock' : ''}" onclick="${isOut ? '' : `addToCart(${p.id})`}">
+        ${imgHtml}
+        <div class="prod-card-body">
+          <button class="prod-add" onclick="event.stopPropagation(); addToCart(${p.id})">+</button>
+          <div class="prod-name">${p.name}</div>
+          <div class="prod-price">R ${Number(p.price).toFixed(2)}</div>
+          <div class="prod-stock ${stockCls}">${stockTxt}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════
+   CART
+══════════════════════════════════════════════════════ */
+function addToCart(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p || p.stock <= 0) return;
+  if (!cart[id]) cart[id] = { ...p, qty: 0 };
+  cart[id].qty++;
+  renderCart();
+  showToast(`${catEmoji(p.category)} ${p.name} added`);
+}
+
+function updateQty(id, delta) {
+  if (!cart[id]) return;
+  cart[id].qty = Math.max(0, cart[id].qty + delta);
+  if (cart[id].qty === 0) delete cart[id];
+  renderCart();
+}
+
+function removeFromCart(id) {
+  delete cart[id];
+  renderCart();
+}
+
+function clearCart() {
+  cart = {};
+  renderCart();
+}
+
+function setPay(method, el) {
+  payMethod = method;
+  document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+function renderCart() {
+  const items = Object.values(cart);
+  const qty   = items.reduce((s, i) => s + i.qty, 0);
+  const total = items.reduce((s, i) => s + i.qty * i.price, 0);
+
+  document.getElementById('cart-count').textContent    = qty;
+  document.getElementById('cart-subtotal').textContent = `R ${total.toFixed(2)}`;
+  document.getElementById('cart-total').textContent    = `R ${total.toFixed(2)}`;
+
+  const chargeBtn = document.getElementById('charge-btn');
+  chargeBtn.disabled    = qty === 0;
+  chargeBtn.textContent = qty === 0 ? 'Charge — R 0.00' : `Charge — R ${total.toFixed(2)}`;
+
+  const listEl = document.getElementById('cart-items');
+  if (!items.length) {
+    listEl.innerHTML = `<div class="cart-empty-state"><span>🛒</span><span>Tap a product to start an order</span></div>`;
+    return;
+  }
+
+  listEl.innerHTML = items.map(i => `
+    <div class="cart-item">
+      <span class="ci-emoji">${catEmoji(i.category)}</span>
+      <span class="ci-name">${i.name}</span>
+      <div class="ci-qty">
+        <button class="qty-btn" onclick="updateQty(${i.id}, -1)">−</button>
+        <span class="qty-num">${i.qty}</span>
+        <button class="qty-btn" onclick="updateQty(${i.id}, +1)">+</button>
+      </div>
+      <span class="ci-price">R ${(i.qty * i.price).toFixed(2)}</span>
+      <button class="ci-del" onclick="removeFromCart(${i.id})">✕</button>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════════════════
+   RECEIPT / CHARGE
+══════════════════════════════════════════════════════ */
+let receiptTotal = 0;
+
+function openReceipt() {
+  const items = Object.values(cart);
+  if (!items.length) return;
+  const total   = items.reduce((s,i) => s + i.qty * i.price, 0);
+  receiptTotal  = total;
+  const orderId = '#ORD-' + String(Math.floor(Math.random() * 9000) + 1000);
+  const table   = document.getElementById('table-select').value || '—';
+  const now     = new Date().toLocaleTimeString('en-ZA', { hour:'2-digit', minute:'2-digit' });
+
+  document.getElementById('receipt-id').textContent    = orderId;
+  document.getElementById('receipt-time').textContent  = now;
+  document.getElementById('receipt-table').textContent = table || '—';
+  document.getElementById('receipt-pay').textContent   = payMethod.charAt(0).toUpperCase() + payMethod.slice(1);
+  document.getElementById('receipt-total').textContent = `R ${total.toFixed(2)}`;
+  document.getElementById('receipt-items').innerHTML   = items.map(i => `
+    <div class="receipt-row">
+      <span>${catEmoji(i.category)} ${i.name} × ${i.qty}</span>
+      <strong>R ${(i.qty * i.price).toFixed(2)}</strong>
+    </div>`).join('');
+
+  // Reset tender state for this order
+  const tenderInput = document.getElementById('tender-input');
+  tenderInput.value = '';
+  tenderInput.classList.remove('insufficient');
+  document.getElementById('tender-hint').classList.remove('show');
+  document.getElementById('tender-change').textContent = 'R 0.00';
+  document.getElementById('tender-change').className = 'tender-result-value';
+  document.getElementById('receipt-confirm-btn').disabled = true;
+
+  // Quick amount buttons: exact total, then rounded-up common note values
+  const roundUps = [10, 20, 50, 100, 200].filter(v => v >= total);
+  const quickAmounts = [total, ...roundUps.slice(0, 3)];
+  const seen = new Set();
+  document.getElementById('tender-quick-row').innerHTML = quickAmounts
+    .filter(v => { const k = v.toFixed(2); if (seen.has(k)) return false; seen.add(k); return true; })
+    .map(v => `<button class="tender-quick-btn ${v === total ? 'exact' : ''}" onclick="setTenderAmount(${v})">${v === total ? 'Exact' : 'R'+v}</button>`)
+    .join('');
+
+  document.getElementById('receipt-modal').classList.add('open');
+  setTimeout(() => tenderInput.focus(), 150);
+}
+
+
+function printReceipt(orderId) {
+
+    const order = allOrders.find(o => o.id == orderId);
+
+    if (!order) {
+        alert('Order not found');
+        return;
+    }
+
+    currentReceiptOrder = order;
+
+    const itemsHtml = (order.items || [])
+      .map(item => `
+        <div style="display:flex;justify-content:space-between;">
+          <span>${item.qty || 1} × ${item.name}</span>
+          <span>R ${(item.price * item.qty).toFixed(2)}</span>
+        </div>
+      `)
+      .join('');
+
+    document.getElementById('receipt-body').innerHTML = `
+      <p><strong>Receipt #</strong> ${order.id}</p>
+      <p><strong>Date:</strong> ${new Date(order.time).toLocaleString()}</p>
+
+      <hr>
+
+      ${itemsHtml}
+
+      <hr>
+
+      <div style="display:flex;justify-content:space-between;">
+        <strong>Total</strong>
+        <strong>R ${Number(order.total).toFixed(2)}</strong>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;">
+        <span>Payment</span>
+        <span>${order.payment || 'Cash'}</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;">
+        <span>Status</span>
+        <span>${order.status}</span>
+      </div>
+    `;
+
+    document
+      .getElementById('receipt-view-modal')
+      .classList.add('open');
+}
+
+function setTenderAmount(amount) {
+  document.getElementById('tender-input').value = amount.toFixed(2);
+  onTenderInput();
+}
+
+function onTenderInput() {
+  const raw      = document.getElementById('tender-input').value;
+  const tendered = parseFloat(raw);
+  const input    = document.getElementById('tender-input');
+  const hint     = document.getElementById('tender-hint');
+  const changeEl = document.getElementById('tender-change');
+  const confirmBtn = document.getElementById('receipt-confirm-btn');
+
+  if (isNaN(tendered) || raw === '') {
+    input.classList.remove('insufficient');
+    hint.classList.remove('show');
+    changeEl.textContent = 'R 0.00';
+    changeEl.className = 'tender-result-value';
+    confirmBtn.disabled = true;
+    return;
+  }
+
+  const change = tendered - receiptTotal;
+
+  if (change < 0) {
+    input.classList.add('insufficient');
+    hint.classList.add('show');
+    changeEl.textContent = `−R ${Math.abs(change).toFixed(2)}`;
+    changeEl.className = 'tender-result-value bad';
+    confirmBtn.disabled = true;
+  } else {
+    input.classList.remove('insufficient');
+    hint.classList.remove('show');
+    changeEl.textContent = `R ${change.toFixed(2)}`;
+    changeEl.className = 'tender-result-value ok';
+    confirmBtn.disabled = false;
+  }
+}
+
+function closeReceipt() {
+  document.getElementById('receipt-modal').classList.remove('open');
+}
+
+function closeReceiptView() {
+    document
+      .getElementById('receipt-view-modal')
+      .classList.remove('open');
+}
+
+async function confirmCharge() {
+  const items     = Object.values(cart);
+  const total     = items.reduce((s,i) => s + i.qty * i.price, 0);
+  const table     = document.getElementById('table-select').value || null;
+  const tendered  = parseFloat(document.getElementById('tender-input').value) || 0;
+  const change    = tendered - total;
+
+  if (tendered < total) {
+    showToast('Amount tendered is less than the total', 'error');
+    return;
+  }
+
+  const payload = {
+    items: items.map(i => ({ productId: i.id, qty: i.qty, price: i.price })),
+    total, payment: payMethod, table,
+    staffId: user.id,
+    amountTendered: tendered,
+    change, 
+    source: 'staff'
+  };
+
+  let savedOrder = null;
+  try {
+    console.log('PAYMENT METHOD:', payMethod);
+    const res = await fetch(`${API}/api/orders`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Server error');
+    const order = await res.json();
+    savedOrder = { ...order, items: [...items], total, payment: payMethod, amountTendered: tendered, change };
+    shiftOrders.push(savedOrder);
+  } catch {
+    // Offline / demo mode — record locally
+    savedOrder = {
+      id: Math.floor(Math.random() * 9000) + 1000,
+      status: 'completed',
+      items: [...items],
+      total, payment: payMethod,
+      amountTendered: tendered, change,
+      createdAt: new Date().toISOString(),
+      table
+    };
+    shiftOrders.push(savedOrder);
+  }
+
+  closeReceipt();
+  printChangeReceipt(savedOrder, tendered, change);
+  showToast(`Order placed — Change: R ${change.toFixed(2)}`, 'success');
+  clearCart();
+  document.getElementById('table-select').value = '';
+  updatePendingBadge();
+}
+
+/* ── Final printed-style receipt — VAT-inclusive tax invoice layout ── */
+function printChangeReceipt(order, tendered, change) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  const total = Number(order.total) || 0;
+
+  // Prices are VAT-inclusive: back out the VAT portion from the total.
+  const subtotal = total / (1 + VAT_RATE);
+  const vatAmount = total - subtotal;
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' });
+
+  const payLabel = (order.payment || 'cash').charAt(0).toUpperCase() + (order.payment || 'cash').slice(1);
+
+  const itemRows = items.map(i => {
+    const lineTotal = (i.qty * i.price).toFixed(2);
+    const label = `${i.qty} x ${i.name}`;
+    return `<div class="pr-row"><span>${label}</span><span>R ${lineTotal}</span></div>`;
+  }).join('');
+
+  const showTender = tendered > 0;
+
+  document.getElementById('print-receipt-card').innerHTML = `
+    <div class="pr-center pr-title">${BUSINESS_NAME}</div>
+    <div class="pr-center pr-sub" style="margin-bottom:6px;">Tax Invoice</div>
+    <div class="pr-line"></div>
+
+    <div class="pr-row"><span>Receipt #:</span><span>${order.id}</span></div>
+    <div class="pr-row"><span>Date:</span><span>${dateStr}</span></div>
+    <div class="pr-row"><span>Time:</span><span>${timeStr}</span></div>
+    <div class="pr-line"></div>
+
+    ${itemRows}
+    <div class="pr-line"></div>
+
+    <div class="pr-row"><span>Subtotal</span><span>R ${subtotal.toFixed(2)}</span></div>
+    <div class="pr-row"><span>VAT (${(VAT_RATE*100).toFixed(0)}%)</span><span>R ${vatAmount.toFixed(2)}</span></div>
+    <div class="pr-line"></div>
+
+    <div class="pr-row pr-total-row"><span>TOTAL</span><span>R ${total.toFixed(2)}</span></div>
+    <div class="pr-row" style="margin-top:6px;"><span>Payment Method:</span><span>${payLabel}</span></div>
+    ${showTender ? `
+      <div class="pr-row"><span>Amount Received</span><span>R ${tendered.toFixed(2)}</span></div>
+      <div class="pr-row pr-bold"><span>Change Given</span><span>R ${change.toFixed(2)}</span></div>
+    ` : ''}
+
+    <div class="pr-line"></div>
+    <div class="pr-center pr-footer">VAT No: ${VAT_NUMBER}</div>
+    <div class="pr-center pr-footer pr-bold" style="margin-top:6px;">Thank you for your support!</div>
+
+    <div class="pr-actions">
+      <button class="pr-btn" onclick="closePrintReceipt()">Close</button>
+      <button class="pr-btn pr-btn-primary" onclick="window.print()">🖨 Print</button>
+    </div>
+  `;
+
+  document.getElementById('print-receipt-overlay').classList.add('open');
+}
+
+
+
+function closePrintReceipt() {
+  document.getElementById('print-receipt-overlay').classList.remove('open');
+}
+
+function updatePendingBadge() {
+  const badge = document.getElementById('pending-badge');
+  const n = allOrders.filter(o => o.status === 'pending').length;
+  badge.textContent   = n;
+  badge.style.display = n > 0 ? 'inline-flex' : 'none';
+}
+
+
+
+/* ══════════════════════════════════════════════════════
+   MY ORDERS
+══════════════════════════════════════════════════════ */
+let allOrders      = [];
+let activeOrderId  = null;  // order open in modal
+
+async function loadMyOrders() {
+  const sub = document.getElementById('orders-sub');
+  const tb  = document.getElementById('orders-tbody');
+  if (tb) tb.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted2);">⏳ Loading orders...</td></tr>`;
+
+  try {
+    const res  = await fetch(`${API}/api/orders/recent`, { headers: authHeaders() });
+    const data = await res.json();
+    allOrders  = Array.isArray(data) ? data : (data.orders || []);
+  } catch {
+    allOrders = shiftOrders;
+  }
+
+  updateOrderSummary();
+  filterOrders();
+
+  const total = allOrders.length;
+  if (sub) sub.textContent = `${total} order${total !== 1 ? 's' : ''} · last 50`;
+}
+
+/* ══════════════════════════════════════════════════════
+   NEW ORDER NOTIFICATIONS
+   Polls the orders endpoint and fires a notification the
+   moment a brand-new order appears — i.e. right after a
+   customer presses "Place Order" on the online menu.
+══════════════════════════════════════════════════════ */
+async function pollForNewOrders() {
+  let latest;
+  try {
+    const res  = await fetch(`${API}/api/orders/recent`, { headers: authHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    latest = Array.isArray(data) ? data : (data.orders || []);
+  } catch {
+    return; // server unreachable — just skip this cycle, try again next poll
+  }
+
+  const currentIds = new Set(latest.map(o => String(o.id)));
+
+  // First run: just record what's already there, don't alert for old orders
+  if (seenOrderIds === null) {
+    seenOrderIds = currentIds;
+    allOrders = latest;
+    return;
+  }
+
+  // Find orders that weren't there last time we checked
+  const freshOrders = latest.filter(o => !seenOrderIds.has(String(o.id)));
+
+  seenOrderIds = currentIds;
+  allOrders    = latest;
+
+  if (freshOrders.length) {
+    // Refresh the visible table/summary if the user is looking at My Orders
+    updateOrderSummary();
+    filterOrders();
+
+    // Fire a notification for each new order (newest last so the most recent shows on top)
+    freshOrders.forEach(o => notifyNewOrder(o));
+  }
+}
+
+function notifyNewOrder(order) {
+  const items   = Array.isArray(order.items) ? order.items : [];
+  const count   = items.reduce((s, i) => s + (i.qty || 1), 0);
+  const summary = items.slice(0, 3).map(i => `${i.qty || 1}× ${i.name || 'Item'}`).join(', ')
+                  + (items.length > 3 ? ` +${items.length - 3} more` : '');
+  const total   = Number(order.total || 0).toFixed(2);
+  const who     = order.customer || 'Guest';
+  const table   = order.table ? ` · Table ${order.table}` : '';
+
+  playNotifSound();
+  pulseNavBadge();
+  showOrderBanner(order, `${who}${table} — ${summary || count + ' item(s)'}`, `R ${total}`);
+  showToast(`🛎️ New order from ${who} — R ${total}`, 'success');
+}
+
+function showOrderBanner(order, subText, totalText) {
+  const banner = document.getElementById('new-order-banner');
+  document.getElementById('new-order-banner-sub').textContent   = subText;
+  document.getElementById('new-order-banner-total').textContent = totalText;
+  banner.dataset.orderId = order.id;
+  banner.classList.add('show');
+
+  clearTimeout(banner._hideTimer);
+  banner._hideTimer = setTimeout(() => dismissOrderBanner(), 8000);
+}
+
+function dismissOrderBanner() {
+  document.getElementById('new-order-banner').classList.remove('show');
+}
+
+function onBannerClick() {
+  const banner = document.getElementById('new-order-banner');
+  const id = banner.dataset.orderId;
+  dismissOrderBanner();
+  if (id) {
+    showSection('my-orders', document.querySelector('.nav-item:nth-child(2)'));
+    setTimeout(() => openOrderModal(id), 150);
+  }
+}
+
+function pulseNavBadge() {
+  const badge = document.getElementById('pending-badge');
+  badge.classList.add('new-order-pulse');
+  setTimeout(() => badge.classList.remove('new-order-pulse'), 2700);
+}
+
+/* Simple two-tone notification chime using Web Audio (no external file needed) */
+function playNotifSound() {
+  try {
+    if (!notifAudioCtx) notifAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = notifAudioCtx;
+    const now = ctx.currentTime;
+
+    [[880, now, 0.14], [1175, now + 0.13, 0.18]].forEach(([freq, start, dur]) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.18, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    });
+  } catch (e) { /* audio not available — ignore silently */ }
+}
+
+function updateOrderSummary() {
+  const pending   = allOrders.filter(o => o.status === 'pending').length;
+  const completed = allOrders.filter(o => o.status === 'completed').length;
+  const cancelled = allOrders.filter(o => o.status === 'cancelled').length;
+  const revenue   = allOrders.filter(o => o.status !== 'cancelled').reduce((s,o) => s + Number(o.total||0), 0);
+  const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+  set('ord-count-pending',   pending);
+  set('ord-count-completed', completed);
+  set('ord-count-cancelled', cancelled);
+  set('ord-count-revenue',   `R ${revenue.toFixed(2)}`);
+  updatePendingBadge();
+}
+
+function filterOrders() {
+  const search    = (document.getElementById('ord-search')?.value || '').toLowerCase();
+  const statusF   = document.getElementById('ord-status-filter')?.value || 'all';
+  const payF      = document.getElementById('ord-pay-filter')?.value    || 'all';
+
+  const filtered = allOrders.filter(o => {
+    const matchStatus = statusF === 'all' || o.status === statusF;
+    const matchPay    = payF === 'all'    || (o.payment||o.paymentMethod||'card') === payF;
+    const matchSearch = !search
+      || String(o.id).toLowerCase().includes(search)
+      || (o.customer||'').toLowerCase().includes(search);
+    return matchStatus && matchPay && matchSearch;
+  });
+
+  renderOrdersTable(filtered);
+}
+
+function renderOrdersTable(orders) {
+  const tb = document.getElementById('orders-tbody');
+  if (!tb) return;
+
+  if (!orders.length) {
+    tb.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted2);">
+      <div style="font-size:2rem;margin-bottom:8px;">
+     <svg xmlns="http://www.w3.org/2000/svg"
+       width="42"
+       height="42"
+       viewBox="0 0 24 24"
+       fill="none"
+       stroke="currentColor"
+       stroke-width="2"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       style="color:var(--gold);">
+    <rect x="8" y="2" width="8" height="4" rx="1"></rect>
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+    </svg>
+    </div>
+    No orders found`;
+    return;
+  }
+
+  tb.innerHTML = orders.map((o, i) => {
+    const status   = o.status || 'pending';
+    const pay      = o.payment || o.paymentMethod || 'cash';
+    const items    = Array.isArray(o.items) ? o.items : [];
+    const summary  = items.length ? items.slice(0,2).map(i => `${i.qty||1}× ${i.name||'Item'}`).join(', ') + (items.length > 2 ? ` +${items.length-2}` : '') : '—';
+    const time     = o.time || o.createdAt || o.created_at;
+    const timeStr  = time ? new Date(time).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}) : '—';
+    const isDone   = status === 'completed' || status === 'cancelled';
+
+    // A staff-made order already had cash/card exchanged at the till the
+    // moment it was charged — there's nothing left to "complete." Only
+    // orders with no staffId (placed online by a customer) need staff to
+    // action them: confirm when the customer arrives, or cancel a no-show.
+    const isStaffOrder = o.source === 'staff';
+    const showActions = !isStaffOrder && !isDone;
+
+    const payLabel = pay === 'cash' ? ' Cash' : pay === 'card' ? ' Card' : ' Online';
+    const payCls   = pay === 'cash' ? 'pay-cash' : pay === 'card' ? 'pay-card' : 'pay-online';
+
+    return `<tr class="row-${status}" style="animation-delay:${i*0.03}s" onclick="openOrderModal('${o.id}')">
+      <td><span style="font-family:var(--font-mono);font-size:12px;color:var(--gold);">#${String(o.id).slice(-6).toUpperCase()}</span></td>
+      <td style="color:#ccc;">${o.customer || 'Guest'}</td>
+      <td style="color:var(--muted);font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${summary}</td>
+      <td style="font-family:var(--font-mono);font-weight:700;">R ${Number(o.total||0).toFixed(2)}</td>
+      <td><span class="pay-badge ${payCls}">${payLabel}</span></td>
+      <td style="color:var(--muted2);font-size:12px;">${timeStr}</td>
+      <td><span class="status-badge ${status}">${status.charAt(0).toUpperCase()+status.slice(1)}</span></td>
+      <td onclick="event.stopPropagation()">
+  <div style="display:flex;gap:5px;flex-wrap:wrap;">
+
+    <button
+      class="tbl-btn tbl-view-btn"
+      onclick="openOrderModal('${o.id}')">
+      👁 View
+    </button>
+
+    ${
+      isStaffOrder || status === 'completed'
+      ? `
+      <button
+        class="tbl-btn"
+        onclick="printReceipt('${o.id}')">
+        🖨 Receipt
+      </button>
+      `
+      : ''
+    }
+
+    ${
+      !isStaffOrder && status === 'pending'
+      ? `
+      <button
+        class="tbl-btn tbl-proceed-btn"
+        onclick="quickProceed('${o.id}')">
+        ✓
+      </button>
+
+      <button
+        class="tbl-btn tbl-cancel-btn"
+        onclick="quickCancel('${o.id}')">
+        ✕
+      </button>
+      `
+      : ''
+    }
+
+  </div>
+</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── MODAL ── */
+function openOrderModal(orderId) {
+  const o = allOrders.find(x => String(x.id) === String(orderId));
+  if (!o) return;
+  activeOrderId = o.id;
+
+  const status  = o.status || 'pending';
+  const pay     = o.payment || o.paymentMethod || o.payment_method || 'cash';
+  const items   = Array.isArray(o.items) ? o.items : [];
+  const time    = o.time || o.createdAt || o.created_at;
+  const timeStr = time ? new Date(time).toLocaleString('en-ZA',{dateStyle:'short',timeStyle:'short'}) : '—';
+
+  document.getElementById('det-order-id').textContent  = `Order #${String(o.id).slice(-6).toUpperCase()}`;
+  document.getElementById('det-customer').textContent  = o.customer || 'Guest';
+  document.getElementById('det-time').textContent      = timeStr;
+  document.getElementById('det-table').textContent     = o.table || '—';
+  document.getElementById('det-total').textContent     = `R ${Number(o.total||0).toFixed(2)}`;
+  document.getElementById('det-status').innerHTML      = `<span class="status-badge ${status}">${status.charAt(0).toUpperCase()+status.slice(1)}</span>`;
+
+  // ── Payment lock rules ──────────────────────────────────
+  // Online orders haven't been paid yet (no payment gateway is wired up) —
+  // the customer pays cash/card at the till, so staff need to be able to
+  // record that here, even on a completed order. Once it's been switched
+  // away from "online" to cash/card, normal locking applies: editable
+  // while pending, frozen once completed/cancelled.
+  const isDone   = status === 'completed' || status === 'cancelled';
+  const isOnline = pay === 'online';
+  const paySelect = document.getElementById('det-pay-select');
+  paySelect.value = pay;
+  paySelect.disabled = !isOnline && isDone;
+
+  const lockNote = document.getElementById('det-pay-lock-note');
+  if (isOnline) {
+    lockNote.textContent = '💡 No online payment yet — select Cash or Card once the customer pays at the till.';
+    lockNote.style.display = '';
+  } else if (isDone) {
+    lockNote.textContent = `🔒 Payment method is locked — this order is already ${status}.`;
+    lockNote.style.display = '';
+  } else {
+    lockNote.style.display = 'none';
+  }
+
+  // Items list with images
+  document.getElementById('det-items-list').innerHTML = items.length
+    ? items.map(item => {
+        const img = item.img
+          ? `<img class="detail-item-img" src="${item.img}" alt="" onerror="this.style.display='none'">`
+          : `<div class="detail-item-ph">${catEmoji(item.category)}</div>`;
+        return `<div class="detail-item-row">
+          <div class="detail-item-left">
+            ${img}
+            <span class="detail-item-name">${item.name||'Item'}</span>
+            <span class="detail-item-qty">× ${item.qty||1}</span>
+          </div>
+          <span class="detail-item-price">R ${(Number(item.price||0) * Number(item.qty||1)).toFixed(2)}</span>
+        </div>`;
+      }).join('')
+    : `<div style="padding:16px;text-align:center;color:var(--muted2);">No item details available</div>`;
+
+  // Show/hide action buttons — same rule as the table: a staff-made order
+  // is already a finished till transaction, nothing left to action. Only
+  // orders with no staffId (placed online by a customer) get Complete/Cancel.
+  const isStaffOrder = !!(o.staffId || o.staff_id);
+  const showActions  = !isStaffOrder && !isDone;
+  document.getElementById('det-proceed-btn').style.display = showActions ? '' : 'none';
+  document.getElementById('det-cancel-btn').style.display  = showActions ? '' : 'none';
+
+  document.getElementById('ord-detail-modal').classList.add('open');
+}
+
+function closeOrderModal() {
+  document.getElementById('ord-detail-modal').classList.remove('open');
+  activeOrderId = null;
+}
+
+/* ── MODAL ACTIONS ── */
+async function detailProceedOrder() {
+  if (!activeOrderId) return;
+  const paySelect = document.getElementById('det-pay-select');
+
+  // Online orders haven't actually been paid yet — require staff to record
+  // how the customer paid at the till before marking it completed.
+  if (paySelect.value === 'online') {
+    showToast('Select Cash or Card to record how the customer paid', 'error');
+    paySelect.focus();
+    return;
+  }
+
+  // Only send a payment override if the dropdown is actually editable —
+  // a locked dropdown (already completed/cancelled) keeps its existing value.
+  const pay = paySelect.disabled ? undefined : paySelect.value;
+  await updateOrderStatus(activeOrderId, 'completed', pay);
+  closeOrderModal();
+}
+
+async function detailCancelOrder() {
+  if (!activeOrderId) return;
+  if (!confirm('Cancel this order?')) return;
+  await updateOrderStatus(activeOrderId, 'cancelled');
+  closeOrderModal();
+}
+
+/* ── QUICK TABLE ACTIONS ── */
+async function quickProceed(id) {
+  const o = allOrders.find(x => String(x.id) === String(id));
+  if (o && (o.staffId || o.staff_id)) return; // staff-made orders have no actions
+
+  const pay = o ? (o.payment || o.paymentMethod || 'cash') : 'cash';
+
+  // Online orders need a cash/card payment recorded before completing —
+  // send staff to the modal where they can pick one, rather than letting
+  // the quick-action button complete it with no payment recorded.
+  if (pay === 'online') {
+    showToast('Open this order to record Cash or Card payment first', 'warn');
+    openOrderModal(id);
+    return;
+  }
+
+  await updateOrderStatus(id, 'completed');
+}
+async function quickCancel(id) {
+  const o = allOrders.find(x => String(x.id) === String(id));
+  if (o && (o.staffId || o.staff_id)) return; // staff-made orders have no actions
+
+  if (!confirm('Cancel this order?')) return;
+  await updateOrderStatus(id, 'cancelled');
+}
+
+/* ── CORE: UPDATE STATUS + PAYMENT ── */
+async function updateOrderStatus(id, status, payment) {
+  const o = allOrders.find(x => String(x.id) === String(id));
+  if (!o) return;
+
+  try {
+    const body = { status };
+    if (payment !== undefined) body.payment = payment;
+    const res = await fetch(`${API}/api/orders/${id}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      // Server rejected the change (e.g. payment is locked) — surface its
+      // exact reason rather than silently applying it locally.
+      showToast(data.message || `Could not update order (${res.status})`, 'error');
+      return;
+    }
+
+    // Only reflect the change locally after the server confirms it
+    o.status = data.status || status;
+    if (data.payment) o.payment = data.payment;
+
+    showToast(status === 'completed' ? '✅ Order completed' : '🚫 Order cancelled', status === 'completed' ? 'success' : 'warn');
+  } catch (err) {
+    console.error('updateOrderStatus error:', err);
+    showToast('Cannot reach server — order not updated', 'error');
+    return;
+  }
+
+  updateOrderSummary();
+  filterOrders();
+}
+
+/* ══════════════════════════════════════════════════════
+   STOCK CHECK
+══════════════════════════════════════════════════════ */
+async function loadStock() {
+  const body = document.getElementById('stock-body');
+  body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted2);">Loading...</td></tr>`;
+
+  let products = [];
+  try {
+    const res = await fetch(`${API}/products`, { headers: authHeaders() });
+    const data = await res.json();
+    products = Array.isArray(data) ? data : (data.products || []);
+  } catch {
+    products = allProducts;
+  }
+
+  if (!products.length) {
+    body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted2);">No products found</td></tr>`;
+    return;
+  }
+
+  const sorted = [...products].sort((a,b) => a.stock - b.stock);
+  const max    = Math.max(...sorted.map(x => x.stock), 1);
+
+  body.innerHTML = sorted.map(p => {
+    const alert   = p.lowStockAlert || 6;
+    const isOut   = p.stock === 0;
+    const isLow   = !isOut && p.stock <= alert;
+    const pct     = Math.round((p.stock / max) * 100);
+    const barClr  = isOut ? 'var(--red)' : isLow ? 'var(--orange)' : 'var(--green)';
+    const statusHtml = isOut
+      ? `<span class="status-badge cancelled">Out of stock</span>`
+      : isLow
+      ? `<span class="status-badge pending">Low stock</span>`
+      : `<span class="status-badge completed">In stock</span>`;
+    return `
+      <tr>
+        <td>${catEmoji(p.category)} ${p.name}</td>
+        <td style="color:var(--muted2);font-size:12px;text-transform:capitalize;">${p.category||'—'}</td>
+        <td style="font-family:var(--font-mono);font-weight:700;${isOut?'color:var(--red)':isLow?'color:var(--orange)':'color:var(--green)'}">${p.stock}</td>
+        <td><div class="stock-bar-wrap"><div class="stock-bar" style="width:${pct}%;background:${barClr};"></div></div></td>
+        <td>${statusHtml}</td>
+      </tr>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════
+   ATTENDANCE — CLOCK IN / CLOCK OUT
+══════════════════════════════════════════════════════ */
+let attendanceRecord  = null;   // today's open/most-recent record from server
+let elapsedTimer       = null;
+let ciGeoCoords         = null; // captured during clock-in flow
+let coGeoCoords         = null; // captured during clock-out flow
+let coSelfieDataUrl     = null;
+let coCameraStream      = null;
+let coCurrentStep       = 1;
+
+async function loadEos() {
+  await loadShiftSummary();
+  await refreshAttendanceStatus();
+  await loadAttendanceHistory();
+}
+
+/* ── Shift sales summary (orders made this session) ── */
+async function loadShiftSummary() {
+  let orders = shiftOrders;
+  try {
+    const res = await fetch(`${API}/api/orders/recent`, { headers: authHeaders() });
+    const d   = await res.json();
+    if (Array.isArray(d) && d.length) orders = d;
+  } catch { /* use local */ }
+
+  const totalOrders  = orders.length;
+  const totalRevenue = orders.reduce((s,o) => s + Number(o.total||0), 0);
+  const totalItems   = orders.reduce((s,o) => s + (Array.isArray(o.items) ? o.items.reduce((a,i)=>a+i.qty,0) : 0), 0);
+  const byCash   = orders.filter(o=>(o.payment||o.paymentMethod||'cash')==='cash').reduce((s,o)=>s+Number(o.total||0),0);
+  const byCard   = orders.filter(o=>(o.payment||o.paymentMethod||'')==='card').reduce((s,o)=>s+Number(o.total||0),0);
+  const byOnline = orders.filter(o=>(o.payment||o.paymentMethod||'')==='online').reduce((s,o)=>s+Number(o.total||0),0);
+
+  document.getElementById('eos-orders').textContent  = totalOrders;
+  document.getElementById('eos-revenue').textContent = `R ${totalRevenue.toFixed(2)}`;
+  document.getElementById('eos-items').textContent   = totalItems;
+  document.getElementById('eos-cash').textContent    = `R ${byCash.toFixed(2)}`;
+  document.getElementById('eos-card').textContent    = `R ${byCard.toFixed(2)}`;
+  document.getElementById('eos-online').textContent  = `R ${byOnline.toFixed(2)}`;
+}
+
+/* ── Check today's clock status on load ── */
+async function refreshAttendanceStatus() {
+  try {
+    const res = await fetch(`${API}/api/attendance/today`, { headers: authHeaders() });
+    const data = await res.json();
+    attendanceRecord = data.record || null;
+  } catch (err) {
+    console.warn('Could not fetch attendance status:', err.message);
+    attendanceRecord = null;
+  }
+  renderClockHero();
+}
+
+function renderClockHero() {
+  const pill      = document.getElementById('clock-status-pill');
+  const inBtn     = document.getElementById('clock-in-btn');
+  const outBtn    = document.getElementById('clock-out-btn');
+  const sessionEl = document.getElementById('clock-session-info');
+
+  const onDuty = attendanceRecord && attendanceRecord.clockIn && !attendanceRecord.clockOut;
+
+  if (onDuty) {
+    pill.className   = 'clock-status-pill on-duty';
+    pill.textContent = '🟢 On Duty';
+    inBtn.style.display  = 'none';
+    outBtn.style.display = '';
+    sessionEl.style.display = 'flex';
+
+    const inTime = new Date(attendanceRecord.clockIn);
+    document.getElementById('cs-clockin').textContent = inTime.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
+
+    clearInterval(elapsedTimer);
+    updateElapsed(inTime);
+    elapsedTimer = setInterval(() => updateElapsed(inTime), 30000);
+  } else {
+    pill.className   = 'clock-status-pill off-duty';
+    pill.textContent = attendanceRecord?.clockOut ? '⚪ Shift Ended' : '⚪ Off Duty';
+    inBtn.style.display  = '';
+    outBtn.style.display = 'none';
+    sessionEl.style.display = 'none';
+    clearInterval(elapsedTimer);
+  }
+}
+
+function updateElapsed(clockInTime) {
+  const ms      = Date.now() - clockInTime.getTime();
+  const totalMin = Math.floor(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  document.getElementById('cs-elapsed').textContent = `${h}h ${m}m`;
+  const overtime = Math.max(0, (totalMin/60) - 8);
+  document.getElementById('cs-overtime').textContent = overtime > 0 ? `${overtime.toFixed(1)}h` : '0h';
+}
+
+/* Live clock face on the hero, ticking every second */
+setInterval(() => {
+  const now = new Date();
+  const timeEl = document.getElementById('clock-hero-time');
+  const dateEl = document.getElementById('clock-hero-date');
+  if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-ZA', { hour12:false });
+  if (dateEl) dateEl.textContent = now.toLocaleDateString('en-ZA', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}, 1000);
+
+/* ══════════════════════════════════════════════════════
+   CLOCK IN FLOW
+══════════════════════════════════════════════════════ */
+function startClockIn() {
+  ciGeoCoords = null;
+  document.getElementById('ci-confirm-btn').disabled = true;
+  document.getElementById('ci-gps-status').className  = 'co-gps-status loading';
+  document.getElementById('ci-gps-status').textContent = 'Requesting location...';
+  document.getElementById('ci-gps-coords').textContent = '—';
+  document.getElementById('clockin-modal').classList.add('open');
+
+  if (!navigator.geolocation) {
+    document.getElementById('ci-gps-status').className = 'co-gps-status error';
+    document.getElementById('ci-gps-status').textContent = '⚠ Geolocation not supported on this device';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      ciGeoCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy };
+      document.getElementById('ci-gps-status').className = 'co-gps-status ok';
+      document.getElementById('ci-gps-status').textContent = '✓ Location captured';
+      document.getElementById('ci-gps-coords').textContent =
+        `${ciGeoCoords.lat.toFixed(5)}, ${ciGeoCoords.lng.toFixed(5)} (±${Math.round(ciGeoCoords.accuracy)}m)`;
+      document.getElementById('ci-confirm-btn').disabled = false;
+    },
+    err => {
+      document.getElementById('ci-gps-status').className = 'co-gps-status error';
+      document.getElementById('ci-gps-status').textContent = `⚠ ${err.message || 'Could not get location'}`;
+      // Allow proceeding without GPS rather than fully blocking the shift from starting —
+      // the server still logs location_verified accordingly.
+      document.getElementById('ci-confirm-btn').disabled = false;
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+function closeClockInModal() {
+  document.getElementById('clockin-modal').classList.remove('open');
+}
+
+async function confirmClockIn() {
+  const btn = document.getElementById('ci-confirm-btn');
+  btn.disabled = true;
+  btn.textContent = 'Clocking in...';
+
+  try {
+    const res = await fetch(`${API}/api/attendance/clock-in`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        latitude:  ciGeoCoords?.lat  ?? null,
+        longitude: ciGeoCoords?.lng  ?? null,
+        accuracy:  ciGeoCoords?.accuracy ?? null
+      })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.message || 'Could not clock in', 'error');
+      btn.disabled = false; btn.textContent = '✓ Confirm Clock In';
+      return;
+    }
+
+    attendanceRecord = data.record;
+    showToast('🟢 Clocked in successfully', 'success');
+    closeClockInModal();
+    renderClockHero();
+    loadAttendanceHistory();
+  } catch (err) {
+    showToast('Cannot reach server — try again', 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = '✓ Confirm Clock In';
+}
+
+/* ══════════════════════════════════════════════════════
+   CLOCK OUT FLOW — Step 1: GPS, Step 2: Selfie, Step 3: Notes, Step 4: Confirm
+══════════════════════════════════════════════════════ */
+function openClockOutModal() {
+  if (!attendanceRecord || !attendanceRecord.clockIn || attendanceRecord.clockOut) {
+    showToast('No active clock-in session found', 'error');
+    return;
+  }
+  coGeoCoords = null;
+  coSelfieDataUrl = null;
+  document.getElementById('co-notes').value = '';
+  document.getElementById('co-end-cash').value = '';
+  document.getElementById('co-step2-next').disabled = true;
+  document.getElementById('co-selfie-box').innerHTML = `<div class="co-selfie-placeholder" id="co-selfie-placeholder"><span class="icon">📷</span>Camera will appear here</div>`;
+  coGoToStep(1);
+  document.getElementById('clockout-modal').classList.add('open');
+  requestClockOutGps();
+}
+
+function closeClockOutModal() {
+  document.getElementById('clockout-modal').classList.remove('open');
+  stopSelfieCam();
+}
+
+function coGoToStep(step) {
+  coCurrentStep = step;
+  document.querySelectorAll('.clockout-step').forEach(s => s.classList.remove('active'));
+  document.getElementById(`co-step-${step}`).classList.add('active');
+  for (let i = 1; i <= 4; i++) {
+    const seg = document.getElementById(`co-seg-${i}`);
+    seg.className = 'co-progress-seg' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  if (step !== 2) stopSelfieCam();
+}
+
+function requestClockOutGps() {
+  document.getElementById('co-gps-status').className = 'co-gps-status loading';
+  document.getElementById('co-gps-status').textContent = 'Requesting location...';
+  document.getElementById('co-gps-coords').textContent = '—';
+  document.getElementById('co-step1-next').disabled = true;
+
+  if (!navigator.geolocation) {
+    document.getElementById('co-gps-status').className = 'co-gps-status error';
+    document.getElementById('co-gps-status').textContent = '⚠ Geolocation not supported';
+    document.getElementById('co-step1-next').disabled = false; // allow proceeding, server flags it
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      coGeoCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy };
+      document.getElementById('co-gps-status').className = 'co-gps-status ok';
+      document.getElementById('co-gps-status').textContent = '✓ Location verified';
+      document.getElementById('co-gps-coords').textContent =
+        `${coGeoCoords.lat.toFixed(5)}, ${coGeoCoords.lng.toFixed(5)} (±${Math.round(coGeoCoords.accuracy)}m)`;
+      document.getElementById('co-step1-next').disabled = false;
+    },
+    err => {
+      document.getElementById('co-gps-status').className = 'co-gps-status error';
+      document.getElementById('co-gps-status').textContent = `⚠ ${err.message || 'Could not get location'}`;
+      document.getElementById('co-step1-next').disabled = false;
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+/* ── Selfie capture via getUserMedia ── */
+async function startSelfieCam() {
+  try {
+    coCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+    const box = document.getElementById('co-selfie-box');
+    box.innerHTML = `<video id="co-selfie-video" autoplay playsinline></video>`;
+    const video = document.getElementById('co-selfie-video');
+    video.srcObject = coCameraStream;
+
+    document.getElementById('co-cam-btn').innerHTML = `
+     <svg xmlns="http://www.w3.org/2000/svg"
+       width="16"
+       height="16"
+       viewBox="0 0 24 24"
+       fill="currentColor"
+       style="vertical-align:middle;margin-right:6px;">
+    <path d="M20 5h-3.2l-1.8-2h-6L7.2 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-8 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+  </svg>
+  Capture`;
+    document.getElementById('co-cam-btn').onclick = captureSelfie;
+  } catch (err) {
+    showToast('Could not access camera — ' + (err.message || 'permission denied'), 'error');
+  }
+}
+
+function captureSelfie() {
+  const video = document.getElementById('co-selfie-video');
+  if (!video) return;
+  const canvas = document.createElement('canvas');
+  canvas.width  = video.videoWidth  || 480;
+  canvas.height = video.videoHeight || 360;
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  coSelfieDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+  const box = document.getElementById('co-selfie-box');
+  box.innerHTML = `<img src="${coSelfieDataUrl}" alt="Selfie">`;
+  stopSelfieCam();
+
+  document.getElementById('co-cam-btn').innerHTML = `
+  <svg xmlns="http://www.w3.org/2000/svg"
+       width="16"
+       height="16"
+       viewBox="0 0 24 24"
+       fill="none"
+       stroke="currentColor"
+       stroke-width="2"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       style="vertical-align:middle;margin-right:6px;">
+    <polyline points="23 4 23 10 17 10"></polyline>
+    <polyline points="1 20 1 14 7 14"></polyline>
+    <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
+    <path d="M20.49 15a9 9 0 0 1-14.13 3.36L1 14"></path>
+  </svg>
+  Retake`;
+  document.getElementById('co-cam-btn').onclick = startSelfieCam;
+  document.getElementById('co-step2-next').disabled = false;
+}
+
+function stopSelfieCam() {
+  if (coCameraStream) {
+    coCameraStream.getTracks().forEach(t => t.stop());
+    coCameraStream = null;
+  }
+}
+
+/* ── Submit clock-out ── */
+async function submitClockOut() {
+  const btn = document.getElementById('co-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Clocking out...';
+
+  try {
+    const res = await fetch(`${API}/api/attendance/clock-out`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        latitude:    coGeoCoords?.lat ?? null,
+        longitude:   coGeoCoords?.lng ?? null,
+        accuracy:    coGeoCoords?.accuracy ?? null,
+        selfieImage: coSelfieDataUrl,
+        notes:       document.getElementById('co-notes').value.trim() || null,
+        endCash:     document.getElementById('co-end-cash').value || null
+      })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.message || 'Could not clock out', 'error');
+      btn.disabled = false; btn.textContent = '✓ Confirm Clock Out';
+      return;
+    }
+
+    attendanceRecord = data.record;
+    renderClockOutConfirmation(data.record, data.summary);
+    coGoToStep(4);
+    renderClockHero();
+    loadAttendanceHistory();
+  } catch (err) {
+    showToast('Cannot reach server — try again', 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = '✓ Confirm Clock Out';
+}
+
+function renderClockOutConfirmation(record, summary) {
+  const name   = user.name || user.username || 'Staff';
+  const empId  = user.employeeId || user.employee_id || `EMP${String(user.id||0).padStart(3,'0')}`;
+  const inTime  = record.clockIn  ? new Date(record.clockIn).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}) : '—';
+  const outTime = record.clockOut ? new Date(record.clockOut).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}) : '—';
+  const dateStr = new Date(record.clockOut || Date.now()).toLocaleDateString('en-ZA',{day:'numeric',month:'long',year:'numeric'});
+
+  const hoursWorked   = summary?.hoursWorked   ?? record.hoursWorked   ?? 0;
+  const overtimeHours = summary?.overtimeHours ?? record.overtimeHours ?? 0;
+  const suspicious    = summary?.suspicious === true;
+  const gpsOk         = summary ? summary.locationVerified : record.locationVerified;
+  const selfieOk      = !!coSelfieDataUrl;
+
+  document.getElementById('cf-employee').textContent = name;
+  document.getElementById('cf-empid').textContent     = empId;
+  document.getElementById('cf-date').textContent      = dateStr;
+  document.getElementById('cf-clockin').textContent   = inTime;
+  document.getElementById('cf-clockout').textContent  = outTime;
+  document.getElementById('cf-hours').textContent     = `${hoursWorked.toFixed ? hoursWorked.toFixed(1) : hoursWorked} hrs`;
+  document.getElementById('cf-overtime').textContent  = overtimeHours > 0 ? `${overtimeHours.toFixed ? overtimeHours.toFixed(1) : overtimeHours} hrs` : 'None';
+
+  const statusEl = document.getElementById('cf-status');
+  statusEl.textContent = suspicious ? 'Flagged' : 'Present';
+  statusEl.className = 'co-confirm-value ' + (suspicious ? 'red' : 'green');
+
+  const gpsChip = document.getElementById('cf-gps-chip');
+  gpsChip.className = 'co-verify-chip ' + (gpsOk ? 'ok' : 'fail');
+  gpsChip.textContent = gpsOk ? '📍 Location: Verified' : '📍 Location: Outside Premises';
+
+  const selfieChip = document.getElementById('cf-selfie-chip');
+  selfieChip.className = 'co-verify-chip ' + (selfieOk ? 'ok' : 'fail');
+  selfieChip.textContent = selfieOk ? 'Identity: Verified' : 'Identity: Not Captured';
+
+  document.getElementById('co-confirm-sub').textContent =
+    suspicious ? 'This clock-out was flagged for manager review (outside authorized location)' : 'Have a great rest of your day';
+}
+
+/* ── Attendance history table ── */
+async function loadAttendanceHistory() {
+  const body = document.getElementById('att-history-body');
+  if (!body) return;
+  body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted2);">Loading...</td></tr>`;
+
+  try {
+    const res = await fetch(`${API}/api/attendance/my-records?range=week`, { headers: authHeaders() });
+    const records = await res.json();
+
+    if (!Array.isArray(records) || !records.length) {
+      body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted2);">No attendance records yet</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = records.slice(0, 10).map(r => {
+      const dateStr = new Date(r.date).toLocaleDateString('en-ZA',{day:'2-digit',month:'short'});
+      const inStr   = r.clockIn  ? new Date(r.clockIn).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}) : '—';
+      const outStr  = r.clockOut ? new Date(r.clockOut).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}) : '—';
+      const status  = r.attendanceStatus || 'present';
+      return `<tr>
+        <td>${dateStr}</td>
+        <td style="font-family:var(--font-mono);">${inStr}</td>
+        <td style="font-family:var(--font-mono);">${outStr}</td>
+        <td style="font-family:var(--font-mono);color:var(--gold);">${r.hoursWorked != null ? r.hoursWorked.toFixed(1)+'h' : '—'}</td>
+        <td style="font-family:var(--font-mono);color:var(--orange);">${r.overtimeHours ? r.overtimeHours.toFixed(1)+'h' : '—'}</td>
+        <td><span class="att-status-chip ${status}">${status.charAt(0).toUpperCase()+status.slice(1)}</span></td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted2);">Could not load attendance history</td></tr>`;
+  }
+}
+
+function closeShift() {
+  if (attendanceRecord && attendanceRecord.clockIn && !attendanceRecord.clockOut) {
+    showToast('Please clock out before ending your session', 'warn');
+    showSection('eos', document.querySelector('.nav-item:nth-child(4)'));
+    return;
+  }
+  if (!confirm('Log out now?')) return;
+  logout();
+}
+
+/* ══════════════════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════════════════ */
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.replace('index.html');
+}
+
+/* ══════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 2400);
+}
+</script>
+</body>
+</html>

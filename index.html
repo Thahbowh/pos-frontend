@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Navbar</title>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+   <!-- Age Modal -->
+  <div id="ageModal">
+    <div class="age-box">
+      <div class="logo-text">POS SYSTEM</div>
+      <h2>Age Verification</h2>
+      <p>This website sells alcohol. You must be <strong>18 years or older</strong> to enter. Please confirm your age.</p>
+      
+      <div class="age-buttons">
+        <button class="age-yes" onclick="verifyAge(true)">Yes, I am 18+</button>
+        <button class="age-no" onclick="verifyAge(false)">No, I am under 18</button>
+      </div>
+
+      <p class="age-denied" id="ageDenied">
+        Sorry, you must be 18 or older to access this site.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Come and Collect Slip ── -->
+ <div id="collectSlip" style="
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(175, 93, 93, 0.85); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center;
+  ">
+
+  <div style="
+    background:#0f0f0f; border:1px solid #333; border-radius:16px;
+    padding:0; width:90%; max-width:380px; overflow:hidden;
+    box-shadow:0 0 60px rgba(255,184,0,0.15);
+    animation: slipIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+  ">
+
+  <!-- Gold top bar -->
+  <div style="background:linear-gradient(135deg,#FFB800,#ff6b00);padding:18px 24px;">
+    <div style="font-size:11px;letter-spacing:0.12em;color:#000;opacity:0.7;margin-bottom:4px;">Thahbowh.Pos</div>
+    <div style="font-size:22px;font-weight:800;color:#000;">Your Order is Ready! Drink With RESPONSIBILITY🎉</div>
+  </div>
+
+  <!-- Slip body -->
+    <div style="padding:24px;">
+      <div style="
+        background:#1a1a1a; border:1px dashed #333; border-radius:10px;
+        padding:16px; margin-bottom:20px; text-align:center;
+      ">
+        <div style="font-size:12px;color:#666;margin-bottom:6px;">ORDER NUMBER</div>
+        <div style="font-size:28px;font-weight:800;color:#FFB800;letter-spacing:2px;" id="slipOrderId">—</div>
+      </div>
+
+      <div style="
+        display:flex; align-items:center; gap:14px;
+        background:#1a1a1a; border-radius:10px; padding:16px;
+        margin-bottom:20px;
+      ">
+        <div style="font-size:36px;">🍺</div>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:3px;">Come and Collect</div>
+          <div style="font-size:13px;color:#888;line-height:1.5;">
+            Please approach the counter<br>with this order number.
+          </div>
+        </div>
+      </div>
+
+      <div id="slipItems" style="
+        font-size:13px; color:#aaa; margin-bottom:20px;
+        border-top:1px solid #222; padding-top:14px;
+        line-height:1.8;
+      "></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <span style="font-size:13px;color:#666;">Total Paid</span>
+        <span style="font-size:20px;font-weight:800;color:#FFB800;" id="slipTotal">R0</span>
+      </div>
+
+      <button onclick="closeCollectSlip()" style="
+        width:100%; padding:14px;
+        background:linear-gradient(135deg,#FFB800,#ff6b00);
+        color:#000; border:none; border-radius:10px;
+        font-size:15px; font-weight:700; cursor:pointer;
+        letter-spacing:0.5px;
+       ">Got it — I'm on my way 
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes slipIn {
+    from { opacity:0; transform:scale(0.9) translateY(20px); }
+    to   { opacity:1; transform:scale(1)   translateY(0);    }
+  }
+</style>
+
+
+  <header class="navbar">
+    <div class="logo">POS SYSTEM</div>
+    <!-- Toggle -->
+    <input type="checkbox" id="nav-toggle" hidden>
+
+    <label for="nav-toggle" id="cartBtn" class="cart-btn" onclick="toggleCart()">
+      <span class="cart-text" >Cart</span> 
+      <span id="count" class="cart-count">0</span>
+    </label>
+
+    <label class="log-in" id="login">
+      <button class="login-btn" onclick="window.location.href='customer-login.html'">Login</button>
+    </label>
+   <ul class="nav-links"> 
+
+    </ul>
+      <!-- Overlay -->
+    <label for="nav-toggle" class="overlay"></label>
+  </header>
+
+
+  <section class="hero">
+    <h1 style="text-align:center;margin-top:50px;">Carling Black Label Boozer</h1>
+  </section>
+
+  <div class="container">
+    <input 
+      type="text" 
+      id="searchInput" 
+      placeholder="Search drinks... (e.g. Heineken)" 
+      onkeyup="searchProducts()"
+      style="width:100%;padding:10px;margin-bottom:15px;border-radius:8px;border:none;background:#1a1a1a;color:#fff;"
+    >
+
+    <div id="filters" >
+      <button onclick="filterCategory('all')">All</button>
+      <button onclick="filterCategory('beer')">Beer</button>
+      <button onclick="filterCategory('cider')">Cider</button>
+      <button onclick="filterCategory('whiskey')">Whiskey</button>
+      <button onclick="filterCategory('wine')">Wine</button>
+      <button onclick="filterCategory('vodka')">Vodka</button>
+      <button onclick="filterCategory('hubbly')">Hubbly</button>
+      <button onclick="filterCategory('food')">Food</button>
+    </div>
+   
+    <div id="products"></div>
+  </div>
+  
+  <div class="cart" id="cart">
+   <button class="close-cart" onclick="toggleCart()">✖</button>
+   <h2>My Cart</h2>
+
+    <div id="cartItems" class="cart-content"></div>
+
+    <div class="order-summary">
+      <p>Subtotal: R<span id="subtotal">0</span></p>
+      <h3>Total: R<span id="total">0</span></h3>
+    </div>
+
+    <button class="order-btn" onclick="placeOrder()">Place Order</button>
+  </div>
+
+  <div id="receiptModal" class="receipt-modal">
+    <div class="receipt-box">
+      <h2>Order Receipt</h2>
+      <p id="orderId"></p>
+ 
+      <div id="receiptItems"></div>
+ 
+      <h3>Total: R<span id="receiptTotal"></span></h3>
+ 
+      <button onclick="closeReceipt()">Close</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-container">
+
+      <!-- Brand -->
+      <div class="footer-col">
+        <h2 class="logo">POS SYSTEM</h2>
+        <p class="tagline">
+        The heart of nightlife. Good vibes, great drinks, unforgettable nights.
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer-col">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Menu</a></li>
+          <li><a href="#">Events</a></li>
+          <li><a href="#">Bookings</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="footer-col">
+        <h3>Contact</h3>
+
+        <p>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/>
+          </svg>
+          Phuthaditjhaba, Free State
+        </p>
+
+        <p>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+           <path d="M6.62 10.79a15.46 15.46 0 0 0 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.07 21 3 13.93 3 5c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.24.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+          </svg>
+          +27 82 651 1691
+        </p>
+
+        <p>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
+          </svg>
+          info@thahbowh.co.za
+        </p>
+
+        <p>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 1a11 11 0 1 0 11 11A11.01 11.01 0 0 0 12 1zm1 11.41V6h-2v7h6v-2z"/>
+          </svg>
+          Open Daily: 12PM - Late
+        </p>
+      </div>
+
+      <!-- CTA / Newsletter -->
+      <div class="footer-col">
+        <h3>Stay Updated</h3>
+        <p>Get updates on events & specials</p>
+        <input type="email" placeholder="Enter your email">
+        <button>Subscribe</button>
+      
+        <div class="socials">
+
+          <!-- WhatsApp -->
+          <a href="https://wa.me/27123456789" aria-label="WhatsApp">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.52 3.48A11.84 11.84 0 0 0 12.04 0C5.43 0 .04 5.39.04 12c0 2.11.55 4.18 1.6 6L0 24l6.17-1.61A11.94 11.94 0 0 0 12.04 24c6.61 0 12-5.39 12-12 0-3.2-1.25-6.21-3.52-8.52zM12.04 21.8c-1.8 0-3.56-.48-5.1-1.39l-.37-.22-3.66.96.98-3.57-.24-.37A9.72 9.72 0 0 1 2.24 12c0-5.4 4.4-9.8 9.8-9.8s9.8 4.4 9.8 9.8-4.4 9.8-9.8 9.8zm5.37-7.33c-.29-.15-1.72-.85-1.99-.94-.27-.1-.46-.15-.66.15-.19.29-.75.94-.92 1.13-.17.19-.34.22-.63.07-.29-.15-1.22-.45-2.33-1.43-.86-.77-1.44-1.71-1.61-2-.17-.29-.02-.45.13-.6.13-.13.29-.34.44-.51.15-.17.19-.29.29-.49.1-.19.05-.37-.02-.51-.07-.15-.66-1.59-.9-2.18-.24-.58-.49-.5-.66-.5h-.56c-.19 0-.49.07-.75.37-.26.29-.98.96-.98 2.34s1.01 2.71 1.15 2.9c.15.19 1.98 3.03 4.8 4.24.67.29 1.2.46 1.61.59.68.22 1.29.19 1.78.12.54-.08 1.72-.7 1.96-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.56-.34z"/>
+            </svg>
+          </a>
+
+          <!-- Facebook -->
+          <a href="#" aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M22 12A10 10 0 1 0 10.44 21.87v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.25c-1.23 0-1.61.76-1.61 1.54V12h2.74l-.44 2.88h-2.3v6.99A10 10 0 0 0 22 12z"/>
+            </svg>
+          </a>
+
+          <!-- Instagram -->
+          <a href="#" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm5 5a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm6.5-.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
+            </svg>
+          </a>
+
+          <!-- TikTok -->
+          <a href="#" aria-label="TikTok">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-1.52V16a5 5 0 1 1-5-5c.31 0 .62.03.92.08v2.54a2.5 2.5 0 1 0 1.58 2.33V2h2.5a4.83 4.83 0 0 0 3.77 4.69v0z"/>
+            </svg>
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Bottom -->
+    <div class="footer-bottom">
+      <p>© 2026 Thah_bowh.Dev | All Rights Reserved</p>
+    </div>
+  </footer>
+
+  
+  <script src="index.js"></script>
+
+
+</body>
+</html>

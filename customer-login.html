@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:    #FFB800;
+      --gold-dim: #996e00;
+      --neon:    #00E5FF;
+      --bg:      #090909;
+      --surface: #111111;
+      --surface2:#181818;
+      --border:  rgba(255,255,255,0.07);
+      --text:    #F0F0F0;
+      --muted:   #666;
+      --danger:  #FF4D6D;
+      --success: #00E096;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── Animated background ── */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden;
+    }
+    .bg-layer::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(255,184,0,0.12) 0%, transparent 70%);
+      top: -200px; left: -100px;
+      animation: drift1 12s ease-in-out infinite alternate;
+    }
+    .bg-layer::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%);
+      bottom: -150px; right: -100px;
+      animation: drift2 15s ease-in-out infinite alternate;
+    }
+    @keyframes drift1 { to { transform: translate(60px, 80px); } }
+    @keyframes drift2 { to { transform: translate(-60px, -60px); } }
+
+    .noise {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Layout ── */
+    .page {
+      position: relative; z-index: 2;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── Left Panel ── */
+    .left {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 60px;
+      border-right: 1px solid var(--border);
+      animation: fadeLeft 0.8s ease both;
+    }
+    @keyframes fadeLeft { from { opacity:0; transform: translateX(-30px); } }
+
+    .brand-mark {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--gold), #ff6b00);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      color: #000;
+      margin-bottom: 48px;
+      box-shadow: 0 0 40px rgba(255,184,0,0.3);
+    }
+
+    .brand-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 6vw, 80px);
+      line-height: 0.9;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #fff 0%, var(--gold) 60%, #ff6b00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+
+    .brand-tagline {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 300px;
+      margin-bottom: 48px;
+    }
+    .brand-tagline span { color: var(--gold); }
+
+    .vibe-pills {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--surface);
+    }
+    .pill span { font-size: 14px; }
+
+    /* ── Right Panel ── */
+    .right {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 60px 40px;
+      animation: fadeRight 0.8s 0.15s ease both;
+    }
+    @keyframes fadeRight { from { opacity:0; transform: translateX(30px); } }
+
+    .form-card {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .form-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+    .form-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 36px;
+    }
+    .form-sub a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    /* ── Error / Success Banner ── */
+    .banner {
+      display: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 18px;
+      align-items: center; gap: 8px;
+    }
+    .banner.error   { display: flex; background: rgba(255,77,109,0.12); border: 1px solid rgba(255,77,109,0.3); color: var(--danger); }
+    .banner.success { display: flex; background: rgba(0,224,150,0.1);  border: 1px solid rgba(0,224,150,0.3);  color: var(--success); }
+
+    /* ── Input Group ── */
+    .input-group {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-icon {
+      position: absolute;
+      left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 16px;
+      pointer-events: none;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    .input-wrap input {
+      width: 100%;
+      padding: 14px 44px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-wrap input::placeholder { color: var(--muted); }
+    .input-wrap input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(255,184,0,0.12), 0 0 20px rgba(255,184,0,0.08);
+    }
+    .input-wrap input:focus + .input-icon,
+    .input-wrap:focus-within .input-icon { opacity: 1; }
+
+    .toggle-pw {
+      position: absolute;
+      right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none;
+      color: var(--muted); cursor: pointer;
+      font-size: 16px; padding: 4px;
+      transition: color 0.2s;
+    }
+    .toggle-pw:hover { color: var(--gold); }
+
+    /* ── Remember / Forgot row ── */
+    .form-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 4px 0 24px;
+    }
+    .remember {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--muted); cursor: pointer;
+    }
+    .remember input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+    .forgot {
+      font-size: 13px;
+      color: var(--gold);
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .forgot:hover { opacity: 1; }
+
+    /* ── Login Button ── */
+    .btn-login {
+      width: 100%;
+      padding: 15px;
+      border: none; border-radius: 12px;
+      background: linear-gradient(135deg, var(--gold), #ff6b00);
+      color: #000;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      position: relative; overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.3s;
+      box-shadow: 0 4px 20px rgba(255,184,0,0.25);
+    }
+    .btn-login::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,184,0,0.4); }
+    .btn-login:hover::after { opacity: 1; }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login.loading { opacity: 0.7; pointer-events: none; }
+    .btn-login.loading .btn-text { display: none; }
+    .btn-login .btn-loader { display: none; }
+    .btn-login.loading .btn-loader { display: inline-block; }
+
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0;
+      color: var(--muted); font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
+    }
+
+    /* ── Register link ── */
+    .register-cta {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .register-cta a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .register-cta a:hover { text-decoration: underline; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      html, body { overflow: auto; }
+      .page { grid-template-columns: 1fr; }
+      .left { display: none; }
+      .right { padding: 40px 24px; min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-layer"></div>
+  <div class="noise"></div>
+
+  <div class="page">
+    <!-- ── Left ── -->
+    <div class="left">
+      <div class="brand-mark">T</div>
+      <h1 class="brand-name">Thah_Bowh's<br>POS System</h1>
+      <p class="brand-tagline">
+        Welcome back to <span>the vibe</span>. Your table is waiting, your drinks are cold.
+      </p>
+      <div class="vibe-pills">
+        <div class="pill"><span>🍺</span> Premium Drinks</div>
+        <div class="pill"><span>🎶</span> Live Events</div>
+        <div class="pill"><span>🎁</span> Loyalty Rewards</div>
+        <div class="pill"><span>📍</span> Phuthaditjhaba</div>
+      </div>
+    </div>
+
+    <!-- ── Right ── -->
+    <div class="right">
+      <div class="form-card">
+        <h2 class="form-heading">Welcome Back</h2>
+        <p class="form-sub">No account? <a href="customer-register.html" onclick="openRegisterFromLogin()">Register here</a></p>
+
+        <div class="banner" id="loginBanner"></div>
+
+        <!-- Email -->
+        <div class="input-group">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+            <span class="input-icon">📧</span>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="input-group">
+          <label>Password</label>
+          <div class="input-wrap">
+            <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" id="loginPassword">
+            <span class="input-icon">🔒</span>
+            <button class="toggle-pw" type="button" onclick="togglePassword()" id="eyeBtn" aria-label="Show password">👁️</button>
+          </div>
+        </div>
+
+        <!-- Remember / Forgot -->
+        <div class="form-row">
+          <label class="remember">
+            <input type="checkbox" id="rememberMe"> Remember me
+          </label>
+          <a href="Forgot-password.html" class="forgot" onclick="forgotPassword()">Forgot Password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button class="btn-login" id="loginBtn" onclick="doLogin()">
+          <span class="btn-text">Login to My Account</span>
+          <span class="btn-loader"><span class="spinner"></span></span>
+        </button>
+
+        <div class="divider">or</div>
+
+        <p class="register-cta">
+          New here? <a href="customer-register.html" onclick="openRegisterFromLogin()">Create a free account →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://192.168.8.152:5000";
+
+    // ── Auto-fill remembered email
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('remembered_email');
+      if (saved) {
+        document.getElementById('loginEmail').value = saved;
+        document.getElementById('rememberMe').checked = true;
+      }
+    });
+
+    // ── Toggle password visibility
+    function togglePassword() {
+      const input = document.getElementById('loginPassword');
+      const btn   = document.getElementById('eyeBtn');
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+      }
+    }
+
+    // ── Banner helper
+    function showBanner(msg, type) {
+      const b = document.getElementById('loginBanner');
+      b.textContent = (type === 'error' ? '⚠️ ' : '✅ ') + msg;
+      b.className = 'banner ' + type;
+    }
+    function hideBanner() {
+      const b = document.getElementById('loginBanner');
+      b.className = 'banner';
+    }
+
+    // ── Login
+    async function doLogin() {
+      hideBanner();
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const remember = document.getElementById('rememberMe').checked;
+
+      if (!email)    { showBanner('Please enter your email address.', 'error'); return; }
+      if (!password) { showBanner('Please enter your password.', 'error'); return; }
+
+      const btn = document.getElementById('loginBtn');
+      btn.classList.add('loading');
+
+      try {
+        const res  = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.user) {
+  if (remember) localStorage.setItem('remembered_email', email);
+  else          localStorage.removeItem('remembered_email');
+
+  // Build name from whatever the server returns
+  const u = data.user;
+  const name = u.name || `${u.firstName || u.first_name || ''} ${u.lastName || u.last_name || ''}`.trim() || u.email;
+
+  localStorage.setItem('user', JSON.stringify({
+    id:        u.id,
+    email:     u.email,
+    name:      name,
+    role:      u.role,
+    createdAt: u.created_at || u.createdAt
+  }));
+  localStorage.setItem('token', data.token || data.accessToken || '');
+
+          showBanner('Login successful! Redirecting...', 'success');
+
+          setTimeout(() => {
+            if      (data.user.role === 'admin') window.location.href = 'admin.html';
+            else if (data.user.role === 'staff') window.location.href = 'staff.html';
+            else                                 window.location.href = 'customer-dashboard.html';
+          }, 800);
+        } else {
+          const msg = data.message || 'Login failed';
+          if (msg.toLowerCase().includes('password'))       showBanner('Incorrect password. Please try again.', 'error');
+          else if (msg.toLowerCase().includes('not found')) showBanner('No account found with that email.', 'error');
+          else                                              showBanner(msg, 'error');
+          btn.classList.remove('loading');
+        }
+      } catch (err) {
+        showBanner('Cannot reach the server. Please try again.', 'error');
+        btn.classList.remove('loading');
+      }
+    }
+
+    // ── Forgot password placeholder
+    function forgotPassword() {
+      showBanner('Password reset link sent to your email (feature coming soon).', 'success');
+    }
+
+    // ── Go to index.html and trigger register modal
+    function openRegisterFromLogin() {
+      sessionStorage.setItem('openRegister', 'true');
+    }
+
+    // ── Enter key submits
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+  </script>
+</body>
+</html>

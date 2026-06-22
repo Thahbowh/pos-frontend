@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — Thah_Bowh's POS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:     #FFB800;
+      --gold-dim: #996e00;
+      --neon:     #00E5FF;
+      --bg:       #090909;
+      --surface:  #111111;
+      --surface2: #181818;
+      --border:   rgba(255,255,255,0.07);
+      --text:     #F0F0F0;
+      --muted:    #666;
+      --danger:   #FF4D6D;
+      --success:  #00E096;
+      --warn:     #FF9500;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100%;
+    }
+
+    /* ── Animated background ── */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    }
+    .bg-layer::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(255,184,0,0.12) 0%, transparent 70%);
+      top: -200px; left: -100px;
+      animation: drift1 12s ease-in-out infinite alternate;
+    }
+    .bg-layer::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%);
+      bottom: -150px; right: -100px;
+      animation: drift2 15s ease-in-out infinite alternate;
+    }
+    @keyframes drift1 { to { transform: translate(60px, 80px); } }
+    @keyframes drift2 { to { transform: translate(-60px, -60px); } }
+
+    .noise {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Layout ── */
+    .page {
+      position: relative; z-index: 2;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── Left Panel ── */
+    .left {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 60px;
+      border-right: 1px solid var(--border);
+      position: sticky; top: 0; height: 100vh;
+      animation: fadeLeft 0.8s ease both;
+    }
+    @keyframes fadeLeft { from { opacity:0; transform: translateX(-30px); } }
+
+    .brand-mark {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--gold), #ff6b00);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px; color: #000;
+      margin-bottom: 48px;
+      box-shadow: 0 0 40px rgba(255,184,0,0.3);
+    }
+
+    .brand-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 6vw, 80px);
+      line-height: 0.9;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #fff 0%, var(--gold) 60%, #ff6b00 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+
+    .brand-tagline {
+      font-size: 15px; color: var(--muted);
+      line-height: 1.6; max-width: 300px;
+      margin-bottom: 40px;
+    }
+    .brand-tagline span { color: var(--gold); }
+
+    /* Steps tracker on left */
+    .steps-tracker {
+      display: flex; flex-direction: column; gap: 0;
+      width: 100%;
+    }
+    .step-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 10px 0;
+      position: relative;
+    }
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px; top: 42px;
+      width: 2px; height: calc(100% - 12px);
+      background: var(--border);
+    }
+    .step-item.active:not(:last-child)::after { background: rgba(255,184,0,0.3); }
+    .step-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      flex-shrink: 0; transition: all 0.3s;
+      background: var(--surface);
+    }
+    .step-item.active .step-dot {
+      border-color: var(--gold); color: var(--gold);
+      background: rgba(255,184,0,0.1);
+      box-shadow: 0 0 16px rgba(255,184,0,0.2);
+    }
+    .step-item.done .step-dot {
+      background: var(--gold); border-color: var(--gold);
+      color: #000;
+    }
+    .step-label { font-size: 13px; color: var(--muted); padding-top: 5px; transition: color 0.3s; }
+    .step-item.active .step-label { color: var(--text); }
+    .step-item.done  .step-label  { color: var(--success); }
+
+    .vibe-pills {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border: 1px solid var(--border);
+      border-radius: 999px; font-size: 12px; color: var(--muted);
+      background: var(--surface);
+    }
+    .pill span { font-size: 14px; }
+
+    /* ── Right Panel ── */
+    .right {
+      display: flex; flex-direction: column;
+      justify-content: flex-start; align-items: center;
+      padding: 60px 40px;
+      animation: fadeRight 0.8s 0.15s ease both;
+      overflow-y: auto;
+    }
+    @keyframes fadeRight { from { opacity:0; transform: translateX(30px); } }
+
+    .form-card {
+      width: 100%; max-width: 460px;
+      padding-bottom: 60px;
+    }
+
+    .form-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px; letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+    .form-sub {
+      font-size: 13px; color: var(--muted); margin-bottom: 32px;
+    }
+    .form-sub a { color: var(--gold); text-decoration: none; }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 3px; background: var(--border);
+      border-radius: 999px; margin-bottom: 36px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), #ff6b00);
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+
+    /* ── Section headers ── */
+    .section-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px; letter-spacing: 3px;
+      color: var(--gold); margin: 28px 0 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── Banner ── */
+    .banner {
+      display: none; padding: 10px 14px;
+      border-radius: 10px; font-size: 13px;
+      margin-bottom: 18px;
+      align-items: center; gap: 8px;
+    }
+    .banner.error   { display: flex; background: rgba(255,77,109,0.12);  border: 1px solid rgba(255,77,109,0.3);  color: var(--danger); }
+    .banner.success { display: flex; background: rgba(0,224,150,0.1);   border: 1px solid rgba(0,224,150,0.3);   color: var(--success); }
+
+    /* ── Input Group ── */
+    .input-row {
+      display: grid; gap: 14px;
+    }
+    .input-row.two { grid-template-columns: 1fr 1fr; }
+
+    .input-group { position: relative; margin-bottom: 14px; }
+    .input-group label {
+      display: block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 15px; pointer-events: none; opacity: 0.5; transition: opacity 0.2s;
+    }
+    .input-wrap input,
+    .input-wrap select,
+    .input-wrap textarea {
+      width: 100%; padding: 13px 44px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text); font-size: 14px;
+      font-family: 'DM Sans', sans-serif; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+    .input-wrap select { cursor: pointer; }
+    .input-wrap textarea { resize: vertical; min-height: 80px; padding-top: 13px; }
+    .input-wrap input::placeholder,
+    .input-wrap textarea::placeholder { color: var(--muted); }
+    .input-wrap input:focus,
+    .input-wrap select:focus,
+    .input-wrap textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(255,184,0,0.12), 0 0 20px rgba(255,184,0,0.08);
+    }
+    .input-wrap input.error-field { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(255,77,109,0.1); }
+    .input-wrap input.valid-field { border-color: var(--success); box-shadow: 0 0 0 3px rgba(0,224,150,0.08); }
+    .field-error { font-size: 11px; color: var(--danger); margin-top: 5px; display: none; }
+    .field-error.show { display: block; }
+
+    /* No-icon inputs */
+    .input-wrap.no-icon input,
+    .input-wrap.no-icon select { padding-left: 14px; }
+
+    .toggle-pw {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s;
+    }
+    .toggle-pw:hover { color: var(--gold); }
+
+    /* ── Password Strength ── */
+    .pw-strength { margin-top: 8px; }
+    .pw-bars {
+      display: flex; gap: 4px; margin-bottom: 4px;
+    }
+    .pw-bar {
+      flex: 1; height: 3px; border-radius: 999px;
+      background: var(--border); transition: background 0.3s;
+    }
+    .pw-bar.weak   { background: var(--danger); }
+    .pw-bar.medium { background: var(--warn); }
+    .pw-bar.strong { background: var(--success); }
+    .pw-label {
+      font-size: 11px; color: var(--muted); transition: color 0.3s;
+    }
+    .pw-label.weak   { color: var(--danger); }
+    .pw-label.medium { color: var(--warn); }
+    .pw-label.strong { color: var(--success); }
+
+    /* ── Avatar Upload ── */
+    .avatar-upload {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 14px;
+    }
+    .avatar-preview {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--surface2); border: 2px dashed var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; cursor: pointer; overflow: hidden;
+      transition: border-color 0.2s;
+      position: relative;
+    }
+    .avatar-preview:hover { border-color: var(--gold); }
+    .avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .avatar-info { flex: 1; }
+    .avatar-info p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .avatar-info strong { color: var(--text); font-size: 13px; }
+    .avatar-btn {
+      display: inline-block; margin-top: 6px;
+      padding: 6px 14px; border: 1px solid var(--border);
+      border-radius: 8px; font-size: 12px; font-family: 'DM Sans', sans-serif;
+      color: var(--muted); background: var(--surface);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .avatar-btn:hover { border-color: var(--gold); color: var(--gold); }
+    #avatarInput { display: none; }
+
+    /* ── CAPTCHA ── */
+    .captcha-box {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+    .captcha-box.checked { border-color: var(--success); }
+    .captcha-checkbox {
+      width: 22px; height: 22px; cursor: pointer;
+      accent-color: var(--gold); flex-shrink: 0;
+    }
+    .captcha-label { font-size: 13px; color: var(--muted); flex: 1; }
+    .captcha-icon { font-size: 24px; }
+
+    /* ── Legal Checkboxes ── */
+    .legal-checks { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+    .check-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; color: var(--muted); cursor: pointer;
+    }
+    .check-row input[type="checkbox"] {
+      width: 17px; height: 17px; accent-color: var(--gold);
+      cursor: pointer; flex-shrink: 0; margin-top: 2px;
+    }
+    .check-row a { color: var(--gold); text-decoration: none; }
+    .check-row a:hover { text-decoration: underline; }
+
+    /* ── Submit Button ── */
+    .btn-submit {
+      width: 100%; padding: 16px;
+      border: none; border-radius: 14px;
+      background: linear-gradient(135deg, var(--gold), #ff6b00);
+      color: #000; font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px;
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.3s;
+      box-shadow: 0 4px 20px rgba(255,184,0,0.25);
+      margin-top: 8px;
+    }
+    .btn-submit::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .btn-submit:hover  { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,184,0,0.4); }
+    .btn-submit:hover::after { opacity: 1; }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit.loading { opacity: 0.7; pointer-events: none; }
+    .btn-submit.loading .btn-text { display: none; }
+    .btn-submit .btn-loader { display: none; }
+    .btn-submit.loading .btn-loader { display: inline-block; }
+
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.3); border-top-color: #000;
+      border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Login link ── */
+    .login-cta {
+      text-align: center; font-size: 13px;
+      color: var(--muted); margin-top: 20px;
+    }
+    .login-cta a { color: var(--gold); text-decoration: none; font-weight: 600; }
+    .login-cta a:hover { text-decoration: underline; }
+
+    /* ── Success Overlay ── */
+    .success-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(9,9,9,0.95);
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 20px;
+      animation: fadeIn 0.4s ease;
+    }
+    .success-overlay.show { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } }
+    .success-icon {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(0,224,150,0.15); border: 2px solid var(--success);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      animation: popIn 0.5s 0.2s ease both;
+    }
+    @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .success-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 3px;
+      color: var(--success);
+    }
+    .success-msg { font-size: 14px; color: var(--muted); text-align: center; max-width: 300px; }
+    .success-redirect { font-size: 13px; color: var(--gold); margin-top: 8px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .page { grid-template-columns: 1fr; }
+      .left { display: none; }
+      .right { padding: 40px 24px; }
+      .input-row.two { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-layer"></div>
+  <div class="noise"></div>
+
+  <!-- Success Overlay -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-icon">✓</div>
+    <div class="success-title">You're In!</div>
+    <p class="success-msg">Your account has been created. A verification email is on its way to your inbox.</p>
+    <p class="success-redirect">Redirecting to login... <span id="countdown">3</span>s</p>
+  </div>
+
+  <div class="page">
+    <!-- ── Left ── -->
+    <div class="left">
+      <div class="brand-mark">T</div>
+      <h1 class="brand-name">Thah_Bowh's<br>POS System</h1>
+      <p class="brand-tagline">
+        Join the vibe. Earn rewards, book tables, and never miss a <span>live event</span>.
+      </p>
+
+      <div class="steps-tracker" id="stepsTracker">
+        <div class="step-item active" id="step1">
+          <div class="step-dot">1</div>
+          <div class="step-label">Basic Information</div>
+        </div>
+        <div class="step-item" id="step2">
+          <div class="step-dot">2</div>
+          <div class="step-label">Account Security</div>
+        </div>
+        <div class="step-item" id="step3">
+          <div class="step-dot">3</div>
+          <div class="step-label">Profile & Emergency</div>
+        </div>
+        <div class="step-item" id="step4">
+          <div class="step-dot">4</div>
+          <div class="step-label">Agreements & Verify</div>
+        </div>
+      </div>
+
+      <div class="vibe-pills">
+        <div class="pill"><span>🍺</span> Premium Drinks</div>
+        <div class="pill"><span>🎶</span> Live Events</div>
+        <div class="pill"><span>🎁</span> Loyalty Rewards</div>
+        <div class="pill"><span>📍</span> Phuthaditjhaba</div>
+      </div>
+    </div>
+
+    <!-- ── Right ── -->
+    <div class="right">
+      <div class="form-card">
+        <h2 class="form-heading">Create Account</h2>
+        <p class="form-sub">Already have one? <a href="customer-login.html">Sign in here</a></p>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+        </div>
+
+        <div class="banner" id="regBanner"></div>
+
+        <!-- ══ SECTION 1: Basic Info ══ -->
+        <div class="section-label">01 — Basic Information</div>
+
+        <div class="input-row two">
+          <div class="input-group">
+            <label>First Name</label>
+            <div class="input-wrap">
+              <input type="text" id="firstName" placeholder="Thabo" autocomplete="given-name">
+              <span class="input-icon">👤</span>
+            </div>
+            <div class="field-error" id="err-firstName">Please enter your first name</div>
+          </div>
+          <div class="input-group">
+            <label>Last Name</label>
+            <div class="input-wrap">
+              <input type="text" id="lastName" placeholder="Mokoena" autocomplete="family-name">
+              <span class="input-icon">👤</span>
+            </div>
+            <div class="field-error" id="err-lastName">Please enter your last name</div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
+            <span class="input-icon">📧</span>
+          </div>
+          <div class="field-error" id="err-email">Please enter a valid email address</div>
+        </div>
+
+        <div class="input-group">
+          <label>Phone Number (SA)</label>
+          <div class="input-wrap">
+            <input type="tel" id="phone" placeholder="+27 71 234 5678" autocomplete="tel">
+            <span class="input-icon">📱</span>
+          </div>
+          <div class="field-error" id="err-phone">Please enter a valid SA phone number</div>
+        </div>
+
+        <!-- ══ SECTION 2: Security ══ -->
+        <div class="section-label">02 — Account Security</div>
+
+        <div class="input-group">
+          <label>Password</label>
+          <div class="input-wrap">
+            <input type="password" id="regPassword" placeholder="Min 8 chars, numbers & symbols" autocomplete="new-password" oninput="checkPasswordStrength()">
+            <span class="input-icon">🔒</span>
+            <button class="toggle-pw" type="button" onclick="togglePw('regPassword','eyeReg')" id="eyeReg" aria-label="Show password">👁️</button>
+          </div>
+          <div class="pw-strength" id="pwStrength" style="display:none">
+            <div class="pw-bars">
+              <div class="pw-bar" id="bar1"></div>
+              <div class="pw-bar" id="bar2"></div>
+              <div class="pw-bar" id="bar3"></div>
+              <div class="pw-bar" id="bar4"></div>
+            </div>
+            <div class="pw-label" id="pwLabel">Enter a password</div>
+          </div>
+          <div class="field-error" id="err-password">Password must be at least 8 chars with a number and symbol</div>
+        </div>
+
+        <div class="input-group">
+          <label>Confirm Password</label>
+          <div class="input-wrap">
+            <input type="password" id="confirmPassword" placeholder="Repeat your password" autocomplete="new-password" oninput="checkConfirmMatch()">
+            <span class="input-icon">🔑</span>
+            <button class="toggle-pw" type="button" onclick="togglePw('confirmPassword','eyeConfirm')" id="eyeConfirm" aria-label="Show password">👁️</button>
+          </div>
+          <div class="field-error" id="err-confirm">Passwords do not match</div>
+        </div>
+
+        <!-- ══ SECTION 3: Profile ══ -->
+        <div class="section-label">03 — Profile Extras (Optional)</div>
+
+        <div class="avatar-upload">
+          <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('avatarInput').click()">
+            <img id="avatarImg" src="" alt="Profile">
+            <span id="avatarEmoji">🧑</span>
+          </div>
+          <div class="avatar-info">
+            <strong>Profile Picture</strong>
+            <p>JPG or PNG, max 2MB.<br>Makes your account feel like yours.</p>
+            <label class="avatar-btn" for="avatarInput">Upload Photo</label>
+          </div>
+          <input type="file" id="avatarInput" accept="image/*" onchange="previewAvatar(this)">
+        </div>
+
+        <div class="input-row two">
+          <div class="input-group">
+            <label>Date of Birth</label>
+            <div class="input-wrap no-icon">
+              <input type="date" id="dob">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Gender (Optional)</label>
+            <div class="input-wrap">
+              <select id="gender">
+                <option value="" disabled selected>Prefer not to say</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="non-binary">Non-binary</option>
+                <option value="other">Other</option>
+                <option value="prefer-not">Prefer not to say</option>
+              </select>
+              <span class="input-icon">⚥</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Emergency Contact Name (Optional)</label>
+          <div class="input-wrap">
+            <input type="text" id="emergencyName" placeholder="Full name of emergency contact">
+            <span class="input-icon">🆘</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Emergency Contact Phone (Optional)</label>
+          <div class="input-wrap">
+            <input type="tel" id="emergencyPhone" placeholder="+27 71 000 0000">
+            <span class="input-icon">📞</span>
+          </div>
+        </div>
+
+        <!-- ══ SECTION 4: Legal & Verify ══ -->
+        <div class="section-label">04 — Agreements & Verification</div>
+
+        <div class="legal-checks">
+          <label class="check-row">
+            <input type="checkbox" id="agreeTerms">
+            <span>I agree to the <a href="#" onclick="openModal('terms')">Terms & Conditions</a> of Thah_Bowh's POS System</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="agreePrivacy">
+            <span>I have read and accept the <a href="#" onclick="openModal('privacy')">Privacy Policy</a></span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="agreeAge">
+            <span>I confirm I am 18 years or older and legally allowed to consume alcohol</span>
+          </label>
+        </div>
+        <div class="field-error" id="err-legal">Please accept all required agreements before continuing</div>
+
+        <!-- CAPTCHA -->
+        <div class="captcha-box" id="captchaBox">
+          <input type="checkbox" class="captcha-checkbox" id="captchaCheck" onchange="toggleCaptcha()">
+          <span class="captcha-label">I'm not a robot</span>
+          <span class="captcha-icon">🔐</span>
+        </div>
+        <div class="field-error" id="err-captcha">Please confirm you are not a robot</div>
+
+        <!-- Submit -->
+        <button class="btn-submit" id="submitBtn" onclick="doRegister()">
+          <span class="btn-text">🚀 Create My Account</span>
+          <span class="btn-loader"><span class="spinner"></span>&nbsp; Creating account…</span>
+        </button>
+
+        <p class="login-cta">Already have an account? <a href="customer-login.html">Sign in →</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://192.168.8.152:5000";
+
+    /* ── Scroll-based step highlighting ── */
+    const sections = ['firstName','regPassword','dob','agreeTerms'];
+    const stepIds  = ['step1','step2','step3','step4'];
+    window.addEventListener('scroll', updateSteps, { passive: true });
+    function updateSteps() {
+      const scrollY = document.querySelector('.right').scrollTop;
+      sections.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.6) {
+          stepIds.forEach((sid, j) => {
+            const s = document.getElementById(sid);
+            s.className = 'step-item' + (j < i ? ' done' : j === i ? ' active' : '');
+          });
+          const pct = 25 + i * 25;
+          document.getElementById('progressFill').style.width = pct + '%';
+        }
+      });
+    }
+    /* Also watch the right panel scroll */
+    document.querySelector('.right').addEventListener('scroll', updateSteps, { passive: true });
+
+    /* ── Toggle password visibility ── */
+    function togglePw(inputId, btnId) {
+      const input = document.getElementById(inputId);
+      const btn   = document.getElementById(btnId);
+      input.type  = input.type === 'password' ? 'text' : 'password';
+      btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+    }
+
+    /* ── Password strength ── */
+    function checkPasswordStrength() {
+      const pw  = document.getElementById('regPassword').value;
+      const str = document.getElementById('pwStrength');
+      const lbl = document.getElementById('pwLabel');
+      const bars = [document.getElementById('bar1'), document.getElementById('bar2'),
+                    document.getElementById('bar3'), document.getElementById('bar4')];
+
+      str.style.display = pw.length ? 'block' : 'none';
+      bars.forEach(b => { b.className = 'pw-bar'; });
+
+      let score = 0;
+      if (pw.length >= 8)  score++;
+      if (pw.length >= 12) score++;
+      if (/[0-9]/.test(pw) && /[a-zA-Z]/.test(pw)) score++;
+      if (/[^a-zA-Z0-9]/.test(pw)) score++;
+
+      const levels = ['weak','weak','medium','strong'];
+      const labels = ['Weak — try adding numbers & symbols',
+                      'Weak — make it longer',
+                      'Medium — add a symbol for stronger',
+                      'Strong — nice work! 💪'];
+      const cls    = levels[Math.max(0, score - 1)] || 'weak';
+
+      for (let i = 0; i < score; i++) bars[i].classList.add(cls);
+      lbl.textContent = pw.length ? labels[Math.max(0, score - 1)] : '';
+      lbl.className   = 'pw-label ' + cls;
+    }
+
+    /* ── Confirm password match ── */
+    function checkConfirmMatch() {
+      const pw  = document.getElementById('regPassword').value;
+      const cpw = document.getElementById('confirmPassword').value;
+      const inp = document.getElementById('confirmPassword');
+      if (cpw) {
+        inp.classList.toggle('error-field', pw !== cpw);
+        inp.classList.toggle('valid-field', pw === cpw);
+      }
+    }
+
+    /* ── Avatar preview ── */
+    function previewAvatar(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img  = document.getElementById('avatarImg');
+          const emoji = document.getElementById('avatarEmoji');
+          img.src    = e.target.result;
+          img.style.display = 'block';
+          emoji.style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    /* ── CAPTCHA toggle ── */
+    function toggleCaptcha() {
+      document.getElementById('captchaBox').classList.toggle(
+        'checked', document.getElementById('captchaCheck').checked
+      );
+    }
+
+    /* ── Banner ── */
+    function showBanner(msg, type) {
+      const b = document.getElementById('regBanner');
+      b.textContent = (type === 'error' ? '⚠️ ' : '✅ ') + msg;
+      b.className   = 'banner ' + type;
+      b.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function hideBanner() { document.getElementById('regBanner').className = 'banner'; }
+
+    /* ── Field error helpers ── */
+    function setErr(id, show) {
+      const el = document.getElementById('err-' + id);
+      if (el) el.classList.toggle('show', show);
+    }
+    function markField(id, valid) {
+      const inp = document.getElementById(id);
+      if (!inp) return;
+      inp.classList.toggle('error-field', !valid);
+      inp.classList.toggle('valid-field', valid);
+    }
+
+    /* ── Validation ── */
+    function validate() {
+      let ok = true;
+
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName  = document.getElementById('lastName').value.trim();
+      const email     = document.getElementById('regEmail').value.trim();
+      const phone     = document.getElementById('phone').value.trim();
+      const pw        = document.getElementById('regPassword').value;
+      const cpw       = document.getElementById('confirmPassword').value;
+      const terms     = document.getElementById('agreeTerms').checked;
+      const privacy   = document.getElementById('agreePrivacy').checked;
+      const age       = document.getElementById('agreeAge').checked;
+      const captcha   = document.getElementById('captchaCheck').checked;
+
+      const valid = v => v;
+      const setF  = (id, cond) => { markField(id, cond); setErr(id, !cond); if (!cond) ok = false; };
+
+      setF('firstName', firstName.length >= 2);
+      setF('lastName',  lastName.length  >= 2);
+      setF('email',     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+      setF('phone',     /^(\+27|0)[6-8][0-9]{8}$/.test(phone.replace(/\s/g, '')));
+      setF('regPassword', pw.length >= 8 && /[0-9]/.test(pw) && /[^a-zA-Z0-9]/.test(pw));
+      setF('confirmPassword', pw === cpw && cpw.length > 0);
+
+      const legalOk = terms && privacy && age;
+      setErr('legal', !legalOk);
+      if (!legalOk) ok = false;
+
+      setErr('captcha', !captcha);
+      if (!captcha) ok = false;
+
+      return ok;
+    }
+
+    /* ── Register ── */
+    async function doRegister() {
+      hideBanner();
+      if (!validate()) {
+        showBanner('Please fix the highlighted fields before continuing.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('submitBtn');
+      btn.classList.add('loading');
+
+      const payload = {
+        firstName:      document.getElementById('firstName').value.trim(),
+        lastName:       document.getElementById('lastName').value.trim(),
+        email:          document.getElementById('regEmail').value.trim(),
+        phone:          document.getElementById('phone').value.trim(),
+        password:       document.getElementById('regPassword').value,
+        dob:            document.getElementById('dob').value || null,
+        gender:         document.getElementById('gender').value || null,
+        emergencyName:  document.getElementById('emergencyName').value.trim() || null,
+        emergencyPhone: document.getElementById('emergencyPhone').value.trim() || null,
+        role:           'customer',  /* always customer — set silently */
+        source: 'online'
+      };
+
+      try {
+        const res  = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+  /* Handle avatar upload separately if a file was chosen */
+  const avatarFile = document.getElementById('avatarInput').files[0];
+  if (avatarFile && data.user?.id) {
+    const fd = new FormData();
+    fd.append('avatar', avatarFile);
+    await fetch(`${API_BASE}/users/${data.user.id}/avatar`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${data.token || ''}` },
+      body: fd
+    }).catch(() => {});
+  }
+
+  // ← Save user + token so dashboard knows who just registered
+  if (data.user) {
+    localStorage.setItem("user", JSON.stringify({
+      id:        data.user.id,
+      email:     data.user.email,
+      name:      data.user.name || `${data.user.first_name || payload.firstName} ${data.user.last_name || payload.lastName}`.trim(),
+      createdAt: data.user.created_at
+    }));
+  }
+  if (data.token) {
+    localStorage.setItem("token", data.token);
+  }
+
+  showSuccessOverlay();
+
+        } else {
+          const msg = data.message || 'Registration failed';
+          if (msg.toLowerCase().includes('email')) showBanner('That email is already registered. Try logging in.', 'error');
+          else showBanner(msg, 'error');
+          btn.classList.remove('loading');
+        }
+      } catch (err) {
+        showBanner('Cannot reach the server. Please check your connection.', 'error');
+        btn.classList.remove('loading');
+      }
+    }
+
+    /* ── Success overlay & redirect ── */
+    function showSuccessOverlay() {
+      const ov = document.getElementById('successOverlay');
+      ov.classList.add('show');
+      let n = 3;
+      const t = setInterval(() => {
+        n--;
+        document.getElementById('countdown').textContent = n;
+        if (n <= 0) { clearInterval(t); window.location.href = 'customer-login.html'; }
+      }, 1000);
+    }
+
+    /* ── Modal placeholder ── */
+    function openModal(type) {
+      const msgs = {
+        terms:   'Full Terms & Conditions will be displayed here. By using Thah_Bowh\'s POS System you agree to our service agreement.',
+        privacy: 'Privacy Policy: We collect only the information necessary to operate your account. We will never sell your data to third parties.'
+      };
+      alert(msgs[type]);
+    }
+
+    /* ── Enter key ── */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && document.activeElement.tagName !== 'TEXTAREA') doRegister();
+    });
+
+    /* ── Real-time field clear on type ── */
+    ['firstName','lastName','regEmail','phone','regPassword','confirmPassword'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => {
+        el.classList.remove('error-field');
+        setErr(id, false);
+      });
+    });
+  </script>
+</body>
+</html>

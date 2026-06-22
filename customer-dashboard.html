@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer My Dashboard</title>
+  
+  <link rel="stylesheet" href="customerdash.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">  
+</head>
+<body>
+
+  <div class="bg-glow"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mark">T</div>
+      <div class="name">POS SYSTEM</div>
+      <div class="sub">LifeStyle Club</div>
+    </div>
+
+    <span class="nav-section-label">My Account</span>
+
+    <a class="nav-item active" onclick="showSection('home', this)">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3l9 8h-3v10h-5v-6H11v6H6V11H3z"/>
+        </svg>
+      </span>
+      Home
+    </a>
+
+    <a class="nav-item" onclick="goToShop(this)">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 7V6a6 6 0 1 1 12 0v1h2v14H4V7h2zm2 0h8V6a4 4 0 1 0-8 0v1z"/>
+        </svg>
+      </span>
+      Shop
+    </a>
+
+    <a class="nav-item" onclick="showSection('orders', this)">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39A2 2 0 0 0 9.64 16H19.4a2 2 0 0 0 1.96-1.61L23 6H6"></path>
+        </svg>
+      </span>
+        Orders
+      <span class="nav-badge" id="pendingBadge">0</span>
+    </a>
+
+    <a class="nav-item" onclick="showSection('rewards', this)">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 12v10H4V12M22 7h-4.18A3 3 0 0 0 12 3a3 3 0 0 0-5.82 4H2v5h20V7z"/>
+        </svg>
+      </span>
+      Rewards
+    </a>
+
+    <span class="nav-section-label">Account</span>
+
+    <a class="nav-item" onclick="showSection('settings', this)">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.28 7.28 0 0 0-1.63-.94L14.5 2.5a.5.5 0 0 0-.49-.5h-4.02a.5.5 0 0 0-.49.5L9.13 5.32a7.28 7.28 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.59 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.43 7.43 0 0 0-.05.94c0 .32.02.63.05.94L2.71 14.52a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.39 1.05.71 1.63.94l.37 2.82a.5.5 0 0 0 .49.5h4.02a.5.5 0 0 0 .49-.5l.37-2.82c.58-.23 1.13-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58z"/>
+        </svg>
+      </span>
+      Settings
+    </a>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()">
+        <svg xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1 id="pageTitle">DASHBOARD</h1>
+        <p id="pageDate"></p>
+      </div>
+      <div class="topbar-right">
+        <div class="avatar-btn" id="avatarBtn">?</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── HOME ── -->
+      <div class="section active" id="section-home">
+        <div class="welcome-banner">
+          <div>
+            <h2>Welcome back, <span id="welcomeName">Friend</span> 👋</h2>
+            <p>Here's what's happening with your account today.</p>
+          </div>
+          <div class="welcome-emoji">🍺</div>
+        </div>
+
+        <div class="stats-grid">
+
+          <!-- Total Orders -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39A2 2 0 0 0 9.64 16H19.4a2 2 0 0 0 1.96-1.61L23 6H6"></path>
+              </svg>
+            </div>
+            <div class="stat-value" id="statOrders">0</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+
+          <!-- Pending -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+              </svg>
+            </div>
+            <div class="stat-value" id="statPending">0</div>
+            <div class="stat-label">Pending</div>
+         </div>
+
+          <!-- Total Spent -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                <circle cx="17" cy="12" r="1.5"></circle>
+              </svg>
+            </div>
+            <div class="stat-value" id="statSpent">R0</div>
+            <div class="stat-label">Total Spent</div>
+          </div>
+
+          <!-- Points -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="#FFB800">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
+            <div class="stat-value" id="statPoints">0</div>
+            <div class="stat-label">Points</div>
+          </div>
+
+        </div>
+
+        <div class="section-header">
+          <h3>Recent Orders</h3>
+          <button class="see-all" onclick="showSection('orders', document.querySelector('[onclick*=\'orders\']'))">See all →</button>
+        </div>
+        <div class="orders-list" id="homeOrdersList"></div>
+      </div>
+
+      <!-- ── ORDERS ── -->
+      <div class="section" id="section-orders">
+        <div class="section-header" style="margin-bottom:20px;">
+          <h3>My Orders</h3>
+        </div>
+        <div class="orders-list" id="fullOrdersList"></div>
+      </div>
+
+      <!-- ── REWARDS ── -->
+      <div class="section" id="section-rewards">
+        <div class="section-header" style="margin-bottom:20px;">
+          <h3>Loyalty & Rewards</h3>
+        </div>
+        <div class="rewards-card">
+          <div class="points-display">
+            <div class="points-circle" id="pointsCircle">
+              <div class="points-inner">
+                <span class="points-num" id="pointsNum">0</span>
+                <span class="points-label">pts</span>
+              </div>
+            </div>
+            <div class="points-info">
+              <h4 id="tierName">Bronze Member 🥉</h4>
+              <p id="tierDesc">Earn 1 point per R10 spent</p>
+              <p style="margin-top:6px;font-size:12px;" id="nextTierMsg"></p>
+            </div>
+          </div>
+
+          <div class="progress-bar-wrap">
+            <div class="progress-label">
+              <span>Progress to next tier</span>
+              <span id="progressPct">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div class="reward-tiers">
+            <div class="tier unlocked">
+              <div class="tier-icon">🥉</div>
+              <div class="tier-name">Bronze</div>
+              <div class="tier-pts">0 pts</div>
+            </div>
+            <div class="tier" id="silverTier">
+              <div class="tier-icon">🥈</div>
+              <div class="tier-name">Silver</div>
+              <div class="tier-pts">100 pts</div>
+            </div>
+            <div class="tier" id="goldTier">
+              <div class="tier-icon">🏆</div>
+              <div class="tier-name">Gold VIP</div>
+              <div class="tier-pts">300 pts</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rewards-card">
+          <div class="section-header">
+            <h3>Available Perks</h3>
+          </div>
+          <div id="perksGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ── -->
+      <div class="section" id="section-settings">
+        <div class="section-header" style="margin-bottom:20px;">
+          <h3>Account Settings</h3>
+        </div>
+        <div class="settings-card">
+          <h4>Profile Info</h4>
+          <input class="input-field" type="text" id="settingName" placeholder="Full Name">
+          <input class="input-field" type="email" id="settingEmail" placeholder="Email" readonly style="opacity:0.5;">
+          <button class="btn-save" onclick="saveProfile()">Save Changes</button>
+        </div>
+        <div class="settings-card">
+          <h4>Change Password</h4>
+          <input class="input-field" type="password" id="currentPw" placeholder="Current Password">
+          <input class="input-field" type="password" id="newPw" placeholder="New Password">
+          <input class="input-field" type="password" id="confirmPw" placeholder="Confirm New Password">
+          <button class="btn-save" onclick="changePassword()">Update Password</button>
+        </div>
+        <div class="settings-card">
+          <h4>Account</h4>
+          <div class="setting-row">
+            <span class="setting-label">Member since</span>
+            <span class="setting-value" id="memberSince">—</span>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">Account type</span>
+            <span class="setting-value">Customer</span>
+          </div>
+          <div class="setting-row" style="border:none;">
+            <span class="setting-label" style="color:var(--danger);">Sign out of all devices</span>
+            <button onclick="logout()" style="background:none;border:1px solid var(--danger);color:var(--danger);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;">Logout</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mobile Nav -->
+  <nav class="mobile-nav">
+
+    <button class="mob-btn" onclick="goToShop(this)">
+      <span class="mob-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+          <path d="M6 7V6a6 6 0 1 1 12 0v1h2v14H4V7h2zm2 0h8V6a4 4 0 1 0-8 0v1z"/>
+        </svg>
+      </span>
+      Shop
+    </button>
+
+    <button class="mob-btn" onclick="showSection('orders', this)">
+      <span class="mob-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+          <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14h9.95a2 2 0 0 0 1.95-1.57L21 6H6.21L5.27 4H2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 8 19h11v-2H8l1.17-2z"/>
+        </svg>
+      </span>
+      Orders
+    </button>
+
+    <button class="mob-btn active" onclick="showSection('home', this)">
+      <span class="mob-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+          <path d="M12 3l9 8h-3v10h-5v-6H11v6H6V11H3z"/>
+        </svg>
+      </span>
+      Home
+    </button>
+
+    <button class="mob-btn" onclick="showSection('rewards', this)">
+      <span class="mob-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+          <path d="M20 12v10H4V12M22 7h-4.18A3 3 0 0 0 12 3a3 3 0 0 0-5.82 4H2v5h20V7zm-10-2a1 1 0 0 1 1 1v1h-2V6a1 1 0 0 1 1-1zm-7 4h14v1H5V9z"/>
+        </svg>
+      </span>
+      Rewards
+    </button>
+
+    <button class="mob-btn" onclick="showSection('settings', this)">
+      <span class="mob-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+          <path d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.28 7.28 0 0 0-1.63-.94L14.5 2.5a.5.5 0 0 0-.49-.5h-4.02a.5.5 0 0 0-.49.5L9.13 5.32a7.28 7.28 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.59 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.43 7.43 0 0 0-.05.94c0 .32.02.63.05.94L2.71 14.52a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.39 1.05.71 1.63.94l.37 2.82a.5.5 0 0 0 .49.5h4.02a.5.5 0 0 0 .49-.5l.37-2.82c.58-.23 1.13-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/>
+        </svg>
+      </span>
+      Settings
+    </button>
+
+  </nav>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_BASE = "http://192.168.8.152:5000";
+
+    // ── Auth Guard
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    if (!user) { window.location.replace("customer-login.html"); }
+
+    // ── Boot
+    document.addEventListener("DOMContentLoaded", () => {
+      initDashboard();
+    });
+
+    function initDashboard() {
+      const name = user.name || "user";
+      const initials = name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2);
+
+      document.getElementById("welcomeName").textContent   = name.split(" ")[0];
+      document.getElementById("avatarBtn").textContent     = initials;
+      document.getElementById("settingName").value         = name;
+      document.getElementById("settingEmail").value        = user.email || "";
+      document.getElementById("memberSince").textContent   = user.createdAt
+        ? new Date(user.createdAt).toLocaleDateString("en-ZA")
+        : "—";
+
+      document.getElementById("pageDate").textContent =
+        new Date().toLocaleDateString("en-ZA", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+
+      loadOrders();
+      loadRewards();
+    }
+
+    // ── Navigation
+    function showSection(id, el) {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+      document.querySelectorAll(".mob-btn").forEach(b => b.classList.remove("active"));
+
+      document.getElementById("section-" + id).classList.add("active");
+      if (el) el.classList.add("active");
+
+      const titles = { home: "DASHBOARD", orders: "MY ORDERS", rewards: "REWARDS", settings: "SETTINGS" };
+      document.getElementById("pageTitle").textContent = titles[id] || id.toUpperCase();
+    }
+
+    // ── Load Orders from API
+    async function loadOrders() {
+      const token = localStorage.getItem("token");
+      let myOrders = [];
+
+      try {
+        const res = await fetch(`${API_BASE}/api/orders/my-orders`, {
+          headers: { "Authorization": `Bearer ${token}` },
+          credentials: "include"
+        });
+        if (res.ok) {
+          myOrders = await res.json();
+        } else {
+          console.warn("Could not load orders:", res.status);
+        }
+      } catch (err) {
+        console.error("Orders fetch failed:", err);
+      }
+
+      const pending  = myOrders.filter(o => o.status === "pending").length;
+      const spent    = myOrders.filter(o => o.status !== "cancelled")
+                               .reduce((s, o) => s + (o.total || 0), 0);
+      const points   = Math.floor(spent / 10);
+
+      document.getElementById("statOrders").textContent  = myOrders.length;
+      document.getElementById("statPending").textContent = pending;
+      document.getElementById("statSpent").textContent   = "R" + spent.toFixed(0);
+      document.getElementById("statPoints").textContent  = points;
+      document.getElementById("pendingBadge").textContent = pending;
+      if (pending === 0) document.getElementById("pendingBadge").style.display = "none";
+
+      renderOrdersList(myOrders.slice(0,3), "homeOrdersList");
+      renderOrdersList(myOrders, "fullOrdersList");
+
+      return { points, spent, myOrders };
+    }
+
+    function renderOrdersList(orders, containerId) {
+      const el = document.getElementById(containerId);
+      if (!orders.length) {
+        el.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg"
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M6 6h15l-1.5 9h-12z"/>
+            <path d="M6 6l-2-3H2"/>
+            <circle cx="9" cy="20" r="1"/>
+            <circle cx="18" cy="20" r="1"/>
+            <path d="M6 6l2 14h10"/>
+          </svg>
+        </div>
+
+  <p>No orders yet. <a href="index.html">Browse the menu →</a></p>
+</div>`;
+        return;
+      }
+
+      el.innerHTML = orders.map(o => {
+        const items  = o.items.map(i => `${i.name} ×${i.qty}`).join(", ");
+        const status = o.status || "pending";
+        const scls   = { pending: "status-pending", completed: "status-completed", cancelled: "status-cancelled" }[status] || "status-pending";
+        const icon   = { pending: "⏳", completed: "✅", cancelled: "❌" }[status] || "⏳";
+        const time   = o.time ? timeAgo(o.time) : "";
+
+        return `<div class="order-card">
+          <div class="order-icon">🍺</div>
+          <div class="order-details">
+            <div class="order-id">${o.id || "—"}</div>
+            <div class="order-items">${items}</div>
+            <div class="order-time">${time}</div>
+          </div>
+          <div class="order-right">
+            <div class="order-total">R${(o.total || 0).toFixed(0)}</div>
+            <span class="status-badge ${scls}">${icon} ${capitalize(status)}</span>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    // ── Rewards
+    async function loadRewards() {
+      const token = localStorage.getItem("token");
+      let myOrders = [];
+
+      try {
+        const res = await fetch(`${API_BASE}/api/orders/my-orders`, {
+          headers: { "Authorization": `Bearer ${token}` },
+          credentials: "include"
+        });
+        if (res.ok) myOrders = await res.json();
+      } catch (_) {}
+
+      const spent  = myOrders.filter(o => o.status !== "cancelled")
+                             .reduce((s, o) => s + (o.total || 0), 0);
+      const points = Math.floor(spent / 10);
+
+      document.getElementById("pointsNum").textContent  = points;
+      document.getElementById("statPoints").textContent = points;
+
+      // Tier logic
+      let tier = "Bronze 🥉", tierDesc = "Earn 1 point per R10 spent", nextMsg = "", pct = 0;
+      if (points >= 300) {
+        tier = "Gold VIP 🏆"; tierDesc = "15% discount on all orders + free drink on birthday";
+        nextMsg = "You've reached the top tier! 🔥"; pct = 100;
+        document.getElementById("goldTier").classList.add("unlocked");
+        document.getElementById("silverTier").classList.add("unlocked");
+      } else if (points >= 100) {
+        tier = "Silver 🥈"; tierDesc = "10% discount on orders over R200";
+        nextMsg = `${300 - points} pts to Gold VIP`; pct = ((points - 100) / 200) * 100;
+        document.getElementById("silverTier").classList.add("unlocked");
+      } else {
+        nextMsg = `${100 - points} pts to Silver`; pct = (points / 100) * 100;
+      }
+
+      document.getElementById("tierName").textContent    = tier;
+      document.getElementById("tierDesc").textContent    = tierDesc;
+      document.getElementById("nextTierMsg").textContent = nextMsg;
+      document.getElementById("progressPct").textContent = Math.round(pct) + "%";
+      document.getElementById("progressFill").style.width = Math.min(pct, 100) + "%";
+
+      // Points circle arc
+      const deg = Math.min(pct, 100) * 3.6;
+      document.getElementById("pointsCircle").style.background =
+        `conic-gradient(var(--gold) ${deg}deg, var(--surface2) ${deg}deg)`;
+
+      // Perks
+      const perks = [
+        { icon: `<svg xmlns="http://www.w3.org/2000/svg"
+         width="22"
+         height="22"
+         viewBox="0 0 24 24"
+         fill="#FFB800">
+         <path d="M6 3h9a3 3 0 0 1 3 3v1h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v2a3 3 0 0 1-3 3H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 2v14h9a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H6zm12 4v6h1a1 1 0 0 0 1-1V10a1 1 0 0 0-1-1h-1z"/>
+         </svg>`,
+         label: "Buy 5 Get 1 Free",
+         pts: 50,
+         unlocked: points >= 50
+        },
+
+        {icon: `<svg xmlns="http://www.w3.org/2000/svg"
+         width="22"
+         height="22"
+         viewBox="0 0 24 24"
+         fill="#FFB800">
+         <path d="M12 2c-1.1 0-2 .9-2 2v1H7a3 3 0 0 0-3 3v3h16V8a3 3 0 0 0-3-3h-3V4c0-1.1-.9-2-2-2zm-7 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9H5zm3 3h2v2H8v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"/>
+         </svg>`,
+         label: "Birthday Free Drink",
+         pts: 100,
+         unlocked: points >= 100 
+        },
+        
+        { icon: `<svg xmlns="http://www.w3.org/2000/svg"
+         width="22"
+         height="22"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="#FFB800"
+         stroke-width="2"
+         stroke-linecap="round">
+         <line x1="19" y1="5" x2="5" y2="19"/>
+         <circle cx="7" cy="7" r="2"/>
+         <circle cx="17" cy="17" r="2"/>
+         </svg>`,
+         label: "10% Off Next Order",
+         pts: 150,
+         unlocked: points >= 150
+         },
+        
+        { icon: `<svg xmlns="http://www.w3.org/2000/svg"
+         width="22"
+         height="22"
+         viewBox="0 0 24 24"
+         fill="#FFB800">
+         <path d="M5 16l-2-9 6 4 3-6 3 6 6-4-2 9H5zm0 2h14v2H5z"/>
+         </svg>`,
+         label: "VIP Table Access",
+         pts: 200,
+         unlocked: points >= 200
+        },
+        
+        {icon: `<svg xmlns="http://www.w3.org/2000/svg"
+         width="25"
+         height="25"
+         viewBox="0 0 24 24"
+         fill="#FFB800">
+         <path d="M7 2h10v3a5 5 0 0 1-4 4.9V13h3v2H8v-2h3V9.9A5 5 0 0 1 7 5V2zm2 2v1a3 3 0 1 0 6 0V4H9z"/>
+         </svg>
+         `,
+         label: "Free Premium Shot",
+         pts: 250,
+         unlocked: points >= 250
+        },
+        
+        
+        { icon: `<svg xmlns="http://www.w3.org/2000/svg"
+         width="22"
+         height="22"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="#FFB800"
+         stroke-width="2">
+         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 22 12 18.56 5.82 22 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        `,
+        label: "Gold VIP Status",
+        pts: 300,
+        unlocked: points >= 300
+        }
+        
+      ];
+      document.getElementById("perksGrid").innerHTML = perks.map(p => `
+        <div style="background:var(--surface2);border:1px solid ${p.unlocked ? "rgba(255,184,0,0.3)" : "var(--border)"};border-radius:12px;padding:16px;text-align:center;${p.unlocked ? "" : "opacity:0.4;"}">
+          <div style="font-size:24px;margin-bottom:8px;">${p.icon}</div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">${p.label}</div>
+          
+          <div style="font-size:11px;color:var(--muted2); display:flex; align-items:center; gap:6px;">
+            ${p.pts} pts
+            ${p.unlocked ? `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#00C853" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/>
+            </svg>` : `
+
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB800" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 0 1 6 0v3H9z"/>
+            </svg>`}
+          </div>
+
+        </div>
+      `).join("");
+    }
+
+    // ── Settings
+   async function saveProfile() {
+      const name = document.getElementById("settingName").value.trim();
+      if (!name) { showToast("Name cannot be empty", "gold"); return; }
+
+      const token = localStorage.getItem("token");
+
+      try {
+        const res = await fetch(`${API_BASE}/users/update-profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          credentials: "include",
+          body: JSON.stringify({ name })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          showToast(err.message || "Update failed", "gold");
+          return;
+        }
+
+        // Update localStorage so the name persists on refresh
+        user.name = name;
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // Update UI
+        document.getElementById("welcomeName").textContent = name.split(" ")[0];
+        document.getElementById("avatarBtn").textContent   = name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+        showToast("Profile updated ✓", "green");
+
+      } catch (err) {
+       console.error("Profile update failed:", err);
+       showToast("Network error. Try again.", "gold");
+      }
+    }
+
+    function changePassword() {
+      const cur  = document.getElementById("currentPw").value;
+      const nw   = document.getElementById("newPw").value;
+      const conf = document.getElementById("confirmPw").value;
+      if (!cur || !nw || !conf) { showToast("Please fill all fields", "gold"); return; }
+      if (nw !== conf) { showToast("Passwords don't match", "gold"); return; }
+      if (nw.length < 6) { showToast("Password must be 6+ characters", "gold"); return; }
+      // TODO: POST /auth/change-password
+      showToast("Password changed ✓", "green");
+      document.getElementById("currentPw").value = "";
+      document.getElementById("newPw").value = "";
+      document.getElementById("confirmPw").value = "";
+    }
+
+    // ── Logout
+    function logout() {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      window.location.href = "customer-login.html";
+    }
+
+    // ── Helpers
+    function timeAgo(dateStr) {
+      const diff = (Date.now() - new Date(dateStr)) / 1000;
+      if (diff < 60)    return "Just now";
+      if (diff < 3600)  return Math.floor(diff / 60) + " min ago";
+      if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+      return new Date(dateStr).toLocaleDateString("en-ZA");
+    }
+
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function showToast(msg, type = "gold") {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.className = "toast " + type + " show";
+      setTimeout(() => t.className = "toast", 3000);
+    }
+
+    //Go to shop page
+function goToShop(el) {
+
+  // Remove active class from all nav items
+  document.querySelectorAll(".nav-item")
+    .forEach(n => n.classList.remove("active"));
+
+  // Remove active class from mobile buttons
+  document.querySelectorAll(".mob-btn")
+    .forEach(b => b.classList.remove("active"));
+
+  // Add active class to clicked button
+  el.classList.add("active");
+
+  // Navigate to another page
+  window.location.href = "index.html";
+
+}
+  </script>
+</body>
+</html>
