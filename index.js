@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════
 console.log("index.js loaded");
 
-const API_BASE = "http://192.168.8.152:5000";
+const API_BASE = "https://192.168.8.152:5000";
 
 let allProducts = [];
 let cart        = [];          // ← single declaration
