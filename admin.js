@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────
      CONFIG — change this if your URL differs
   ───────────────────────────────────────── */
-  const API_URL = "https://192.168.8.152:5000/products";
+  const API_URL = "`${API_BASE}/products`";
 
   function getToken() {
     return localStorage.getItem("token");
@@ -1301,7 +1301,7 @@ function filterRecentOrders(search) {
    USERS TAB 
 ════════════════════════════════════════ */
 
-const USERS_URL = "https://192.168.8.152:5000/users";
+const USERS_URL = `${API_BASE}/users`;
 
 let allUsersData = [];
 
@@ -2191,7 +2191,7 @@ function toggleForecast() {
 async function syncOrdersFromServer() {
   try {
     const token = localStorage.getItem("token");
-    const res   = await fetch("https://192.168.8.152:5000/api/orders", {
+    const res   = await fetch("`${API_BASE}/api/orders`", {
       headers: { "Authorization": `Bearer ${token}` }
     });
     if (res.status === 401 || res.status === 403) return loadStoredOrders();
@@ -2342,7 +2342,7 @@ async function updateOrderStatus(orderId, newStatus) {
 
   // Hit server first — don't continue if it fails
   try {
-    const res = await fetch(`https://192.168.8.152:5000/api/orders/${orderId}`, {
+    const res = await fetch(`https://task-api-clean-production.up.railway.app/api/orders/${orderId}`, {
       method:  "PUT",
       headers: {
         "Content-Type":  "application/json",
@@ -2512,7 +2512,7 @@ async function keepTokenAlive() {
 
     if (expiresIn < 30 * 60 * 1000) {
       // Token about to expire — refresh it
-      const res = await fetch("https://192.168.8.152:5000/auth/refresh", {
+      const res = await fetch(`${API_BASE}/auth/refresh`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
