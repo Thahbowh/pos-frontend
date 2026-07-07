@@ -1,7 +1,8 @@
 /* ─────────────────────────────────────────
      CONFIG — change this if your URL differs
   ───────────────────────────────────────── */
-  const API_URL = "`${API_BASE}/products`";
+const API_BASE = 'https://task-api-clean-production.up.railway.app';
+  const API_URL = `${API_BASE}/products`;
 
   function getToken() {
     return localStorage.getItem("token");
@@ -2191,7 +2192,7 @@ function toggleForecast() {
 async function syncOrdersFromServer() {
   try {
     const token = localStorage.getItem("token");
-    const res   = await fetch("`${API_BASE}/api/orders`", {
+    const res   = await fetch(`${API_BASE}/api/orders`, {
       headers: { "Authorization": `Bearer ${token}` }
     });
     if (res.status === 401 || res.status === 403) return loadStoredOrders();
