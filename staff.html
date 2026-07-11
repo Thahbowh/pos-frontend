@@ -18,6 +18,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+
 
   <style>
   :root {
@@ -48,6 +50,8 @@
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
+
+  .lucide { width:15px; height:15px; stroke:currentColor; vertical-align:middle; flex-shrink:0; }
 
   body {
     background: var(--bg);
@@ -827,7 +831,7 @@
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <div class="brand-name">🍺 TAVERN POS</div>
+    <div class="brand-name"><i data-lucide="beer"></i> TAVERN POS</div>
     <div class="brand-sub">Staff Terminal</div>
   </div>
   <div class="staff-card">
@@ -839,21 +843,21 @@
   </div>
   <nav class="sidebar-nav">
     <div class="nav-item active" onclick="showSection('pos', this)">
-      <span class="nav-icon">🛒</span> New Order
+      <span class="nav-icon"><i data-lucide="shopping-cart"></i></span> New Order
     </div>
     <div class="nav-item" onclick="showSection('my-orders', this)">
-      <span class="nav-icon">📋</span> My Orders
+      <span class="nav-icon"><i data-lucide="clipboard-list"></i></span> My Orders
       <span class="nav-badge" id="pending-badge" style="display:none;">0</span>
     </div>
     <div class="nav-item" onclick="showSection('stock', this)">
-      <span class="nav-icon">📦</span> Stock Check
+      <span class="nav-icon"><i data-lucide="package"></i></span> Stock Check
     </div>
     <div class="nav-item" onclick="showSection('eos', this)">
-      <span class="nav-icon">🌙</span> End of Shift
+      <span class="nav-icon"><i data-lucide="moon"></i></span> End of Shift
     </div>
   </nav>
   <div class="sidebar-footer">
-    <button class="logout-btn" onclick="logout()">🚪 Log Out</button>
+    <button class="logout-btn" onclick="logout()"><i data-lucide="log-out"></i> Log Out</button>
   </div>
 </div>
 
@@ -861,7 +865,7 @@
 <div class="main">
   <div class="topbar">
     <div class="topbar-left">
-      <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+      <button class="hamburger-btn" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
       <div>
         <div class="topbar-title" id="topbar-title">New Order</div>
         <div class="topbar-sub" id="topbar-sub">Loading...</div>
@@ -869,7 +873,7 @@
     </div>
     <div class="topbar-right">
       <input class="topbar-search" type="text" id="prod-search"
-             placeholder="🔎 Quick search..." oninput="filterProducts()">
+             placeholder="Quick search..." oninput="filterProducts()">
       <div class="shift-badge">
         <div class="live-dot"></div>
         <span id="clock">--:--</span>
@@ -883,21 +887,21 @@
     <div id="pos" class="section active">
       <div class="cat-bar" id="cat-bar">
         <button class="cat-btn active" onclick="setCat('all', this)">All</button>
-        <button class="cat-btn" onclick="setCat('beer', this)">🍺 Beer</button>
-        <button class="cat-btn" onclick="setCat('cider', this)">🍹 Cider</button>
-        <button class="cat-btn" onclick="setCat('whiskey', this)">🥃 Whiskey</button>
-        <button class="cat-btn" onclick="setCat('wine', this)">🍷 Wine</button>
-        <button class="cat-btn" onclick="setCat('vodka', this)">🍸 Vodka</button>
-        <button class="cat-btn" onclick="setCat('food', this)">🍗 Food</button>
-        <button class="cat-btn" onclick="setCat('hubbly', this)">💨 Hubbly</button>
-        <button class="cat-btn" onclick="setCat('cigarettes', this)">🚬 Smokes</button>
+        <button class="cat-btn" onclick="setCat('beer', this)"><i data-lucide="beer"></i> Beer</button>
+        <button class="cat-btn" onclick="setCat('cider', this)"><i data-lucide="apple"></i> Cider</button>
+        <button class="cat-btn" onclick="setCat('whiskey', this)"><i data-lucide="cup-soda"></i> Whiskey</button>
+        <button class="cat-btn" onclick="setCat('wine', this)"><i data-lucide="wine"></i> Wine</button>
+        <button class="cat-btn" onclick="setCat('vodka', this)"><i data-lucide="martini"></i> Vodka</button>
+        <button class="cat-btn" onclick="setCat('food', this)"><i data-lucide="utensils"></i> Food</button>
+        <button class="cat-btn" onclick="setCat('hubbly', this)"><i data-lucide="cloud"></i> Hubbly</button>
+        <button class="cat-btn" onclick="setCat('cigarettes', this)"><i data-lucide="cigarette"></i> Smokes</button>
       </div>
 
       <div class="pos-body">
         <div class="products-area">
           <div class="prod-grid" id="prod-grid">
             <div class="prod-empty">
-              <span class="prod-empty-icon">⏳</span>
+              <span class="prod-empty-icon"><i data-lucide="hourglass"></i></span>
               Loading products...
             </div>
           </div>
@@ -926,7 +930,7 @@
           </div>
           <div class="cart-items" id="cart-items">
             <div class="cart-empty-state">
-              <span>🛒</span>
+              <span><i data-lucide="shopping-cart"></i></span>
               <span>Tap a product to start an order</span>
             </div>
           </div>
@@ -937,8 +941,8 @@
               <span class="total-amt" id="cart-total">R 0.00</span>
             </div>
             <div class="pay-methods">
-              <button class="pay-btn active" onclick="setPay('cash', this)">💵 Cash</button>
-              <button class="pay-btn" onclick="setPay('card', this)">💳 Card</button>
+              <button class="pay-btn active" onclick="setPay('cash', this)"><i data-lucide="banknote"></i> Cash</button>
+              <button class="pay-btn" onclick="setPay('card', this)"><i data-lucide="credit-card"></i> Card</button>
             </div>
             <button class="charge-btn" id="charge-btn" disabled onclick="openReceipt()">Charge — R 0.00</button>
             <button class="clear-btn" onclick="clearCart()">Clear Order</button>
@@ -954,7 +958,7 @@
           <div class="section-title">My Orders</div>
           <div class="section-sub" id="orders-sub">Loading...</div>
         </div>
-        <button class="pay-btn" style="width:auto;padding:7px 14px;" onclick="loadMyOrders()">↻ Refresh</button>
+        <button class="pay-btn" style="width:auto;padding:7px 14px;" onclick="loadMyOrders()"><i data-lucide="refresh-cw"></i> Refresh</button>
       </div>
 
       <!-- Summary cards -->
@@ -980,7 +984,7 @@
       <!-- Filter bar -->
       <div class="ord-filters">
         <input class="ord-search" type="text" id="ord-search"
-               placeholder="🔎 Search by order ID or customer..." oninput="filterOrders()">
+               placeholder="Search by order ID or customer..." oninput="filterOrders()">
         <select class="ord-filter-select" id="ord-status-filter" onchange="filterOrders()">
           <option value="all">All Statuses</option>
           <option value="pending">Pending</option>
@@ -989,9 +993,9 @@
         </select>
         <select class="ord-filter-select" id="ord-pay-filter" onchange="filterOrders()">
           <option value="all">All Payments</option>
-          <option value="cash">💵 Cash</option>
-          <option value="card">💳 Card</option>
-          <option value="online">📱 Online</option>
+          <option value="cash">Cash</option>
+          <option value="card">Card</option>
+          <option value="online">Online</option>
         </select>
       </div>
 
@@ -1020,7 +1024,7 @@
       <div class="ord-modal">
         <div class="ord-modal-head">
           <div class="ord-modal-title" id="det-order-id">Order #0000</div>
-          <button class="ord-modal-close" onclick="closeOrderModal()">✕</button>
+          <button class="ord-modal-close" onclick="closeOrderModal()"><i data-lucide="x"></i></button>
         </div>
 
         <div class="detail-meta-grid">
@@ -1056,9 +1060,9 @@
         <div class="detail-pay-row">
           <span>Payment:</span>
           <select class="detail-pay-select" id="det-pay-select">
-            <option value="cash">💵 Cash</option>
-            <option value="card">💳 Card</option>
-            <option value="online" disabled>📱 Online (auto-detected only)</option>
+            <option value="cash">Cash</option>
+            <option value="card">Card</option>
+            <option value="online" disabled>Online (auto-detected only)</option>
           </select>
         </div>
         <div class="det-pay-lock-note" id="det-pay-lock-note" style="display:none;"></div>
@@ -1066,8 +1070,8 @@
         <!-- Actions -->
         <div class="detail-actions">
           <button class="detail-actions button det-close-btn" onclick="closeOrderModal()">Close</button>
-          <button class="detail-actions button det-cancel-btn" id="det-cancel-btn" onclick="detailCancelOrder()">✕ Cancel Order</button>
-          <button class="detail-actions button det-proceed-btn" id="det-proceed-btn" onclick="detailProceedOrder()">✓ Mark Completed</button>
+          <button class="detail-actions button det-cancel-btn" id="det-cancel-btn" onclick="detailCancelOrder()"><i data-lucide="x"></i> Cancel Order</button>
+          <button class="detail-actions button det-proceed-btn" id="det-proceed-btn" onclick="detailProceedOrder()"><i data-lucide="check"></i> Mark Completed</button>
         </div>
       </div>
     </div>
@@ -1079,7 +1083,7 @@
           <div class="section-title">Stock Check</div>
           <div class="section-sub">Read-only view of current inventory levels</div>
         </div>
-        <button class="pay-btn" style="width:auto;padding:7px 14px;" onclick="loadStock()">↻ Refresh</button>
+        <button class="pay-btn" style="width:auto;padding:7px 14px;" onclick="loadStock()"><i data-lucide="refresh-cw"></i> Refresh</button>
       </div>
       <div class="stock-area">
         <div class="stock-table-wrap">
@@ -1109,7 +1113,7 @@
 
         <!-- Clock hero -->
         <div class="clock-hero">
-          <div class="clock-status-pill off-duty" id="clock-status-pill">⚪ Off Duty</div>
+          <div class="clock-status-pill off-duty" id="clock-status-pill"><i data-lucide="circle"></i> Off Duty</div>
           <div class="clock-big-time" id="clock-hero-time">--:--:--</div>
           <div class="clock-big-date" id="clock-hero-date">—</div>
 
@@ -1128,33 +1132,33 @@
             </div>
           </div>
 
-          <button class="clock-action-btn clock-in-btn" id="clock-in-btn" onclick="startClockIn()">🟢 Clock In</button>
-          <button class="clock-action-btn clock-out-btn" id="clock-out-btn" onclick="openClockOutModal()" style="display:none;">🔴 Clock Out</button>
+          <button class="clock-action-btn clock-in-btn" id="clock-in-btn" onclick="startClockIn()"><i data-lucide="log-in"></i> Clock In</button>
+          <button class="clock-action-btn clock-out-btn" id="clock-out-btn" onclick="openClockOutModal()" style="display:none;"><i data-lucide="log-out"></i> Clock Out</button>
         </div>
 
         <!-- Live shift summary (orders / sales) -->
         <div class="eos-grid">
           <div class="eos-card">
-            <div class="eos-card-icon">🧾</div>
+            <div class="eos-card-icon"><i data-lucide="receipt"></i></div>
             <div class="eos-card-val" id="eos-orders">0</div>
             <div class="eos-card-lbl">Orders Taken</div>
           </div>
           <div class="eos-card">
-            <div class="eos-card-icon">💰</div>
+            <div class="eos-card-icon"><i data-lucide="banknote"></i></div>
             <div class="eos-card-val" id="eos-revenue">R 0</div>
             <div class="eos-card-lbl">Total Revenue</div>
           </div>
           <div class="eos-card">
-            <div class="eos-card-icon">🛒</div>
+            <div class="eos-card-icon"><i data-lucide="shopping-cart"></i></div>
             <div class="eos-card-val" id="eos-items">0</div>
             <div class="eos-card-lbl">Items Sold</div>
           </div>
         </div>
         <div class="eos-breakdown">
           <div class="eos-bd-head">Payment Breakdown</div>
-          <div class="eos-bd-row"><span class="eos-bd-label">💵 Cash</span><span class="eos-bd-val" id="eos-cash">R 0.00</span></div>
-          <div class="eos-bd-row"><span class="eos-bd-label">💳 Card</span><span class="eos-bd-val" id="eos-card">R 0.00</span></div>
-          <div class="eos-bd-row"><span class="eos-bd-label">📱 Online</span><span class="eos-bd-val" id="eos-online">R 0.00</span></div>
+          <div class="eos-bd-row"><span class="eos-bd-label"><i data-lucide="banknote"></i> Cash</span><span class="eos-bd-val" id="eos-cash">R 0.00</span></div>
+          <div class="eos-bd-row"><span class="eos-bd-label"><i data-lucide="credit-card"></i> Card</span><span class="eos-bd-val" id="eos-card">R 0.00</span></div>
+          <div class="eos-bd-row"><span class="eos-bd-label"><i data-lucide="smartphone"></i> Online</span><span class="eos-bd-val" id="eos-online">R 0.00</span></div>
         </div>
 
         <!-- Attendance history -->
@@ -1176,21 +1180,21 @@
     <div class="modal-overlay" id="clockin-modal">
       <div class="modal">
         <div class="modal-head">
-          <div class="modal-title">🟢 Clock In</div>
-          <button class="modal-close" onclick="closeClockInModal()">✕</button>
+          <div class="modal-title"><i data-lucide="log-in"></i> Clock In</div>
+          <button class="modal-close" onclick="closeClockInModal()"><i data-lucide="x"></i></button>
         </div>
 
         <div class="co-step-sub">We need your location to verify you're clocking in from an authorized site.</div>
 
         <div class="co-gps-box" id="ci-gps-box">
-          <div class="co-gps-icon">📍</div>
+          <div class="co-gps-icon"><i data-lucide="map-pin"></i></div>
           <div class="co-gps-status loading" id="ci-gps-status">Waiting for location permission...</div>
           <div class="co-gps-coords" id="ci-gps-coords">—</div>
         </div>
 
         <div class="modal-actions">
           <button class="btn-ghost" onclick="closeClockInModal()">Cancel</button>
-          <button class="btn-primary" id="ci-confirm-btn" onclick="confirmClockIn()" disabled>✓ Confirm Clock In</button>
+          <button class="btn-primary" id="ci-confirm-btn" onclick="confirmClockIn()" disabled><i data-lucide="check"></i> Confirm Clock In</button>
         </div>
       </div>
     </div>
@@ -1199,8 +1203,8 @@
     <div class="modal-overlay" id="clockout-modal">
       <div class="modal clockout-modal">
         <div class="modal-head">
-          <div class="modal-title">🔴 Clock Out</div>
-          <button class="modal-close" onclick="closeClockOutModal()">✕</button>
+          <div class="modal-title"><i data-lucide="log-out"></i> Clock Out</div>
+          <button class="modal-close" onclick="closeClockOutModal()"><i data-lucide="x"></i></button>
         </div>
 
         <div class="co-progress">
@@ -1212,10 +1216,10 @@
 
         <!-- STEP 1: GPS -->
         <div class="clockout-step" id="co-step-1">
-          <div class="co-step-title">📍 Verify Location</div>
+          <div class="co-step-title"><i data-lucide="map-pin"></i> Verify Location</div>
           <div class="co-step-sub">Confirming you're clocking out from an authorized location.</div>
           <div class="co-gps-box" id="co-gps-box">
-            <div class="co-gps-icon">📍</div>
+            <div class="co-gps-icon"><i data-lucide="map-pin"></i></div>
             <div class="co-gps-status loading" id="co-gps-status">Requesting location...</div>
             <div class="co-gps-coords" id="co-gps-coords">—</div>
           </div>
@@ -1227,24 +1231,24 @@
 
         <!-- STEP 2: Selfie -->
         <div class="clockout-step" id="co-step-2">
-          <div class="co-step-title">🤳 Identity Verification</div>
+          <div class="co-step-title"><i data-lucide="scan-face"></i> Identity Verification</div>
           <div class="co-step-sub">Take a quick selfie to confirm it's really you clocking out.</div>
           <div class="co-selfie-box" id="co-selfie-box">
             <div class="co-selfie-placeholder" id="co-selfie-placeholder">
-              <span class="icon">📷</span>
+              <span class="icon"><i data-lucide="camera"></i></span>
               Camera will appear here
             </div>
           </div>
           <div class="co-nav-row">
             <button class="btn-ghost" onclick="coGoToStep(1)">← Back</button>
-            <button class="btn-ghost" id="co-cam-btn" onclick="startSelfieCam()">📷 Open Camera</button>
+            <button class="btn-ghost" id="co-cam-btn" onclick="startSelfieCam()"><i data-lucide="camera"></i> Open Camera</button>
             <button class="btn-primary" id="co-step2-next" onclick="coGoToStep(3)" disabled>Next →</button>
           </div>
         </div>
 
         <!-- STEP 3: Notes + cash -->
         <div class="clockout-step" id="co-step-3">
-          <div class="co-step-title">📝 End-of-Shift Notes</div>
+          <div class="co-step-title"><i data-lucide="square-pen"></i> End-of-Shift Notes</div>
           <div class="co-step-sub">Optional — add any notes for the next shift or management.</div>
           <textarea class="co-notes-input" id="co-notes" placeholder="e.g. Ran low on Heineken, restocked from storeroom. Table 4 left a complaint about wait time..."></textarea>
           <div style="margin-top:12px;">
@@ -1253,14 +1257,14 @@
           </div>
           <div class="co-nav-row">
             <button class="btn-ghost" onclick="coGoToStep(2)">← Back</button>
-            <button class="btn-primary" onclick="submitClockOut()" id="co-submit-btn">✓ Confirm Clock Out</button>
+            <button class="btn-primary" onclick="submitClockOut()" id="co-submit-btn"><i data-lucide="check"></i> Confirm Clock Out</button>
           </div>
         </div>
 
         <!-- STEP 4: Confirmation -->
         <div class="clockout-step" id="co-step-4">
           <div class="co-confirm-head">
-            <div class="co-confirm-check">✓</div>
+            <div class="co-confirm-check"><i data-lucide="check"></i></div>
             <div class="co-confirm-title">Clocked Out Successfully</div>
             <div class="co-confirm-sub" id="co-confirm-sub">Have a great rest of your day</div>
           </div>
@@ -1277,8 +1281,8 @@
           </div>
 
           <div class="co-verify-row">
-            <div class="co-verify-chip" id="cf-gps-chip">📍 Location: —</div>
-            <div class="co-verify-chip" id="cf-selfie-chip">🤳 Identity: —</div>
+            <div class="co-verify-chip" id="cf-gps-chip"><i data-lucide="map-pin"></i> Location: —</div>
+            <div class="co-verify-chip" id="cf-selfie-chip"><i data-lucide="scan-face"></i> Identity: —</div>
           </div>
 
           <div class="modal-actions">
@@ -1295,8 +1299,8 @@
 <div class="modal-overlay" id="receipt-modal">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title">🧾 Order Receipt</div>
-      <button class="modal-close" onclick="closeReceipt()">✕</button>
+      <div class="modal-title"><i data-lucide="receipt"></i> Order Receipt</div>
+      <button class="modal-close" onclick="closeReceipt()"><i data-lucide="x"></i></button>
     </div>
     <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:4px;">
       <span id="receipt-id">#ORDER-0000</span>
@@ -1331,7 +1335,7 @@
 
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeReceipt()">Cancel</button>
-      <button class="btn-primary" id="receipt-confirm-btn" onclick="confirmCharge()" disabled>✓ Confirm &amp; Charge</button>
+      <button class="btn-primary" id="receipt-confirm-btn" onclick="confirmCharge()" disabled><i data-lucide="check"></i> Confirm &amp; Charge</button>
     </div>
   </div>
 </div>
@@ -1344,13 +1348,13 @@
 <div class="toast" id="toast"></div>
 
 <div class="new-order-banner" id="new-order-banner" onclick="onBannerClick()">
-  <div class="new-order-banner-icon">🛎️</div>
+  <div class="new-order-banner-icon"><i data-lucide="bell"></i></div>
   <div class="new-order-banner-body">
     <div class="new-order-banner-title">New Online Order!</div>
     <div class="new-order-banner-sub" id="new-order-banner-sub">—</div>
     <div class="new-order-banner-total" id="new-order-banner-total">—</div>
   </div>
-  <button class="new-order-banner-close" onclick="event.stopPropagation(); dismissOrderBanner()">✕</button>
+  <button class="new-order-banner-close" onclick="event.stopPropagation(); dismissOrderBanner()"><i data-lucide="x"></i></button>
 </div>
 
 <!-- RECEIPT VIEW MODAL (for viewing previously completed orders) -->
@@ -1359,8 +1363,8 @@
   <div class="modal" style="max-width:500px;">
 
     <div class="modal-head">
-      <h3>🖨 Receipt</h3>
-      <button onclick="closeReceiptView()">✕</button>
+      <h3><i data-lucide="printer"></i> Receipt</h3>
+      <button onclick="closeReceiptView()"><i data-lucide="x"></i></button>
     </div>
 
     <div id="receipt-content">
@@ -1380,7 +1384,7 @@
       </button>
 
       <button class="btn-primary" onclick="printCurrentReceipt()">
-        🖨 Print
+        <i data-lucide="printer"></i> Print
       </button>
     </div>
 
@@ -1426,10 +1430,10 @@ let notifAudioCtx  = null;
    CATEGORY HELPERS
 ══════════════════════════════════════════════════════ */
 const CAT_EMOJI = {
-  beer:'🍺', cider:'🍹', whiskey:'🥃', wine:'🍷',
-  vodka:'🍸', food:'🍗', hubbly:'💨', cigarettes:'🚬'
+  beer:'beer', cider:'apple', whiskey:'cup-soda', wine:'wine',
+  vodka:'martini', food:'utensils', hubbly:'cloud', cigarettes:'cigarette'
 };
-const catEmoji = c => CAT_EMOJI[(c||'').toLowerCase()] || '📦';
+const catEmoji = c => `<i data-lucide="${CAT_EMOJI[(c||'').toLowerCase()] || 'package'}"></i>`;
 
 /* ══════════════════════════════════════════════════════
    INIT
@@ -1444,6 +1448,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Start watching for new online/customer orders the moment they're placed
   pollForNewOrders();                       // run once immediately to prime seenOrderIds
   setInterval(pollForNewOrders, POLL_MS);
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 });
 
 
@@ -1507,7 +1513,7 @@ function closeSidebar() {
 ══════════════════════════════════════════════════════ */
 async function loadProducts() {
   const grid = document.getElementById('prod-grid');
-  if (grid) grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon">⏳</span>Loading products...</div>`;
+  if (grid) grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon"><i data-lucide="hourglass"></i></span>Loading products...</div>`;
 
   try {
     const res = await fetch(`${API}/products`, {
@@ -1531,7 +1537,8 @@ async function loadProducts() {
     allProducts = Array.isArray(data) ? data : (data.products || []);
 
     if (!allProducts.length) {
-      if (grid) grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon">📦</span>No products found</div>`;
+      if (grid) grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon"><i data-lucide="package"></i></span>No products found</div>`;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       return;
     }
 
@@ -1539,21 +1546,7 @@ async function loadProducts() {
 
   } catch (err) {
     console.error('loadProducts error:', err);
-    if (grid) grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon">
-    <svg xmlns="http://www.w3.org/2000/svg"
-         width="42"
-         height="42"
-         viewBox="0 0 24 24"
-         fill="none"
-         stroke="#ff6b6b"
-         stroke-width="2"
-         stroke-linecap="round"
-         stroke-linejoin="round">
-      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-      <line x1="12" y1="9" x2="12" y2="13"/>
-      <line x1="12" y1="17" x2="12.01" y2="17"/>
-    </svg>
-    </span>
+    if (grid) grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon" style="color:#ff6b6b;width:42px;height:42px;display:inline-flex;"><i data-lucide="alert-triangle" style="width:42px;height:42px;"></i></span>
 
     Could not load products.
    <br>
@@ -1594,7 +1587,7 @@ function renderProductGrid(products) {
   if (!grid) return;
 
   if (!products.length) {
-    grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon">🔍</span>No products match</div>`;
+    grid.innerHTML = `<div class="prod-empty"><span class="prod-empty-icon"><i data-lucide="search"></i></span>No products match</div>`;
     return;
   }
 
@@ -1603,7 +1596,7 @@ function renderProductGrid(products) {
     const isOut   = p.stock <= 0;
     const isLow   = !isOut && p.stock <= (p.lowStockThreshold || p.lowStockAlert || 6);
     const stockCls = isOut ? 'out' : isLow ? 'low' : '';
-    const stockTxt = isOut ? '❌ Out of stock' : isLow ? `⚠ Only ${p.stock} left` : `✓ ${p.stock} in stock`;
+    const stockTxt = isOut ? '<i data-lucide="x"></i> Out of stock' : isLow ? `<i data-lucide="alert-triangle"></i> Only ${p.stock} left` : `<i data-lucide="check"></i> ${p.stock} in stock`;
     const imgHtml  = p.img
       ? `<img class="prod-card-img" src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=\\'prod-card-img-placeholder\\'>${emoji}</div>'">`
       : `<div class="prod-card-img-placeholder">${emoji}</div>`;
@@ -1619,6 +1612,7 @@ function renderProductGrid(products) {
         </div>
       </div>`;
   }).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1671,7 +1665,8 @@ function renderCart() {
 
   const listEl = document.getElementById('cart-items');
   if (!items.length) {
-    listEl.innerHTML = `<div class="cart-empty-state"><span>🛒</span><span>Tap a product to start an order</span></div>`;
+    listEl.innerHTML = `<div class="cart-empty-state"><span><i data-lucide="shopping-cart"></i></span><span>Tap a product to start an order</span></div>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
     return;
   }
 
@@ -1685,8 +1680,9 @@ function renderCart() {
         <button class="qty-btn" onclick="updateQty(${i.id}, +1)">+</button>
       </div>
       <span class="ci-price">R ${(i.qty * i.price).toFixed(2)}</span>
-      <button class="ci-del" onclick="removeFromCart(${i.id})">✕</button>
+      <button class="ci-del" onclick="removeFromCart(${i.id})"><i data-lucide="x"></i></button>
     </div>`).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1713,6 +1709,7 @@ function openReceipt() {
       <span>${catEmoji(i.category)} ${i.name} × ${i.qty}</span>
       <strong>R ${(i.qty * i.price).toFixed(2)}</strong>
     </div>`).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
   // Reset tender state for this order
   const tenderInput = document.getElementById('tender-input');
@@ -1945,7 +1942,7 @@ function printChangeReceipt(order, tendered, change) {
 
     <div class="pr-actions">
       <button class="pr-btn" onclick="closePrintReceipt()">Close</button>
-      <button class="pr-btn pr-btn-primary" onclick="window.print()">🖨 Print</button>
+      <button class="pr-btn pr-btn-primary" onclick="window.print()"><i data-lucide="printer"></i> Print</button>
     </div>
   `;
 
@@ -1976,7 +1973,7 @@ let activeOrderId  = null;  // order open in modal
 async function loadMyOrders() {
   const sub = document.getElementById('orders-sub');
   const tb  = document.getElementById('orders-tbody');
-  if (tb) tb.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted2);">⏳ Loading orders...</td></tr>`;
+  if (tb) tb.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted2);"><i data-lucide="hourglass"></i> Loading orders...</td></tr>`;
 
   try {
     const res  = await fetch(`${API}/api/orders/recent`, { headers: authHeaders() });
@@ -2047,7 +2044,7 @@ function notifyNewOrder(order) {
   playNotifSound();
   pulseNavBadge();
   showOrderBanner(order, `${who}${table} — ${summary || count + ' item(s)'}`, `R ${total}`);
-  showToast(`🛎️ New order from ${who} — R ${total}`, 'success');
+  showToast(`<i data-lucide="bell"></i> New order from ${who} — R ${total}`, 'success');
 }
 
 function showOrderBanner(order, subText, totalText) {
@@ -2139,22 +2136,11 @@ function renderOrdersTable(orders) {
 
   if (!orders.length) {
     tb.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted2);">
-      <div style="font-size:2rem;margin-bottom:8px;">
-     <svg xmlns="http://www.w3.org/2000/svg"
-       width="42"
-       height="42"
-       viewBox="0 0 24 24"
-       fill="none"
-       stroke="currentColor"
-       stroke-width="2"
-       stroke-linecap="round"
-       stroke-linejoin="round"
-       style="color:var(--gold);">
-    <rect x="8" y="2" width="8" height="4" rx="1"></rect>
-    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-    </svg>
+      <div style="font-size:2rem;margin-bottom:8px;color:var(--gold);">
+     <i data-lucide="inbox" style="width:42px;height:42px;"></i>
     </div>
     No orders found`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
     return;
   }
 
@@ -2191,7 +2177,7 @@ function renderOrdersTable(orders) {
     <button
       class="tbl-btn tbl-view-btn"
       onclick="openOrderModal('${o.id}')">
-      👁 View
+      <i data-lucide="eye"></i> View
     </button>
 
     ${
@@ -2200,7 +2186,7 @@ function renderOrdersTable(orders) {
       <button
         class="tbl-btn"
         onclick="printReceipt('${o.id}')">
-        🖨 Receipt
+        <i data-lucide="printer"></i> Receipt
       </button>
       `
       : ''
@@ -2212,13 +2198,13 @@ function renderOrdersTable(orders) {
       <button
         class="tbl-btn tbl-proceed-btn"
         onclick="quickProceed('${o.id}')">
-        ✓
+        <i data-lucide="check"></i>
       </button>
 
       <button
         class="tbl-btn tbl-cancel-btn"
         onclick="quickCancel('${o.id}')">
-        ✕
+        <i data-lucide="x"></i>
       </button>
       `
       : ''
@@ -2228,6 +2214,7 @@ function renderOrdersTable(orders) {
 </td>
     </tr>`;
   }).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 /* ── MODAL ── */
@@ -2263,10 +2250,10 @@ function openOrderModal(orderId) {
 
   const lockNote = document.getElementById('det-pay-lock-note');
   if (isOnline) {
-    lockNote.textContent = '💡 No online payment yet — select Cash or Card once the customer pays at the till.';
+    lockNote.innerHTML = '<i data-lucide="lightbulb"></i> No online payment yet — select Cash or Card once the customer pays at the till.';
     lockNote.style.display = '';
   } else if (isDone) {
-    lockNote.textContent = `🔒 Payment method is locked — this order is already ${status}.`;
+    lockNote.innerHTML = `<i data-lucide="lock"></i> Payment method is locked — this order is already ${status}.`;
     lockNote.style.display = '';
   } else {
     lockNote.style.display = 'none';
@@ -2298,6 +2285,7 @@ function openOrderModal(orderId) {
   document.getElementById('det-cancel-btn').style.display  = showActions ? '' : 'none';
 
   document.getElementById('ord-detail-modal').classList.add('open');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function closeOrderModal() {
@@ -2384,7 +2372,7 @@ async function updateOrderStatus(id, status, payment) {
     o.status = data.status || status;
     if (data.payment) o.payment = data.payment;
 
-    showToast(status === 'completed' ? '✅ Order completed' : '🚫 Order cancelled', status === 'completed' ? 'success' : 'warn');
+    showToast(status === 'completed' ? '<i data-lucide="check-circle"></i> Order completed' : '<i data-lucide="ban"></i> Order cancelled', status === 'completed' ? 'success' : 'warn');
   } catch (err) {
     console.error('updateOrderStatus error:', err);
     showToast('Cannot reach server — order not updated', 'error');
@@ -2439,6 +2427,7 @@ async function loadStock() {
         <td>${statusHtml}</td>
       </tr>`;
   }).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -2505,7 +2494,7 @@ function renderClockHero() {
 
   if (onDuty) {
     pill.className   = 'clock-status-pill on-duty';
-    pill.textContent = '🟢 On Duty';
+    pill.innerHTML = '<i data-lucide="circle-dot"></i> On Duty';
     inBtn.style.display  = 'none';
     outBtn.style.display = '';
     sessionEl.style.display = 'flex';
@@ -2518,12 +2507,13 @@ function renderClockHero() {
     elapsedTimer = setInterval(() => updateElapsed(inTime), 30000);
   } else {
     pill.className   = 'clock-status-pill off-duty';
-    pill.textContent = attendanceRecord?.clockOut ? '⚪ Shift Ended' : '⚪ Off Duty';
+    pill.innerHTML = attendanceRecord?.clockOut ? '<i data-lucide="circle"></i> Shift Ended' : '<i data-lucide="circle"></i> Off Duty';
     inBtn.style.display  = '';
     outBtn.style.display = 'none';
     sessionEl.style.display = 'none';
     clearInterval(elapsedTimer);
   }
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function updateElapsed(clockInTime) {
@@ -2558,7 +2548,8 @@ function startClockIn() {
 
   if (!navigator.geolocation) {
     document.getElementById('ci-gps-status').className = 'co-gps-status error';
-    document.getElementById('ci-gps-status').textContent = '⚠ Geolocation not supported on this device';
+    document.getElementById('ci-gps-status').innerHTML = '<i data-lucide="alert-triangle"></i> Geolocation not supported on this device';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
     return;
   }
 
@@ -2566,14 +2557,16 @@ function startClockIn() {
     pos => {
       ciGeoCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy };
       document.getElementById('ci-gps-status').className = 'co-gps-status ok';
-      document.getElementById('ci-gps-status').textContent = '✓ Location captured';
+      document.getElementById('ci-gps-status').innerHTML = '<i data-lucide="check"></i> Location captured';
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       document.getElementById('ci-gps-coords').textContent =
         `${ciGeoCoords.lat.toFixed(5)}, ${ciGeoCoords.lng.toFixed(5)} (±${Math.round(ciGeoCoords.accuracy)}m)`;
       document.getElementById('ci-confirm-btn').disabled = false;
     },
     err => {
       document.getElementById('ci-gps-status').className = 'co-gps-status error';
-      document.getElementById('ci-gps-status').textContent = `⚠ ${err.message || 'Could not get location'}`;
+      document.getElementById('ci-gps-status').innerHTML = `<i data-lucide="alert-triangle"></i> ${err.message || 'Could not get location'}`;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       // Allow proceeding without GPS rather than fully blocking the shift from starting —
       // the server still logs location_verified accordingly.
       document.getElementById('ci-confirm-btn').disabled = false;
@@ -2605,12 +2598,12 @@ async function confirmClockIn() {
 
     if (!res.ok) {
       showToast(data.message || 'Could not clock in', 'error');
-      btn.disabled = false; btn.textContent = '✓ Confirm Clock In';
+      btn.disabled = false; btn.innerHTML = '<i data-lucide="check"></i> Confirm Clock In'; if (typeof lucide !== 'undefined') lucide.createIcons();
       return;
     }
 
     attendanceRecord = data.record;
-    showToast('🟢 Clocked in successfully', 'success');
+    showToast('<i data-lucide="check-circle"></i> Clocked in successfully', 'success');
     closeClockInModal();
     renderClockHero();
     loadAttendanceHistory();
@@ -2618,7 +2611,8 @@ async function confirmClockIn() {
     showToast('Cannot reach server — try again', 'error');
   }
   btn.disabled = false;
-  btn.textContent = '✓ Confirm Clock In';
+  btn.innerHTML = '<i data-lucide="check"></i> Confirm Clock In';
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -2634,7 +2628,8 @@ function openClockOutModal() {
   document.getElementById('co-notes').value = '';
   document.getElementById('co-end-cash').value = '';
   document.getElementById('co-step2-next').disabled = true;
-  document.getElementById('co-selfie-box').innerHTML = `<div class="co-selfie-placeholder" id="co-selfie-placeholder"><span class="icon">📷</span>Camera will appear here</div>`;
+  document.getElementById('co-selfie-box').innerHTML = `<div class="co-selfie-placeholder" id="co-selfie-placeholder"><span class="icon"><i data-lucide="camera"></i></span>Camera will appear here</div>`;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
   coGoToStep(1);
   document.getElementById('clockout-modal').classList.add('open');
   requestClockOutGps();
@@ -2664,7 +2659,8 @@ function requestClockOutGps() {
 
   if (!navigator.geolocation) {
     document.getElementById('co-gps-status').className = 'co-gps-status error';
-    document.getElementById('co-gps-status').textContent = '⚠ Geolocation not supported';
+    document.getElementById('co-gps-status').innerHTML = '<i data-lucide="alert-triangle"></i> Geolocation not supported';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
     document.getElementById('co-step1-next').disabled = false; // allow proceeding, server flags it
     return;
   }
@@ -2673,14 +2669,16 @@ function requestClockOutGps() {
     pos => {
       coGeoCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy };
       document.getElementById('co-gps-status').className = 'co-gps-status ok';
-      document.getElementById('co-gps-status').textContent = '✓ Location verified';
+      document.getElementById('co-gps-status').innerHTML = '<i data-lucide="check"></i> Location verified';
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       document.getElementById('co-gps-coords').textContent =
         `${coGeoCoords.lat.toFixed(5)}, ${coGeoCoords.lng.toFixed(5)} (±${Math.round(coGeoCoords.accuracy)}m)`;
       document.getElementById('co-step1-next').disabled = false;
     },
     err => {
       document.getElementById('co-gps-status').className = 'co-gps-status error';
-      document.getElementById('co-gps-status').textContent = `⚠ ${err.message || 'Could not get location'}`;
+      document.getElementById('co-gps-status').innerHTML = `<i data-lucide="alert-triangle"></i> ${err.message || 'Could not get location'}`;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       document.getElementById('co-step1-next').disabled = false;
     },
     { enableHighAccuracy: true, timeout: 10000 }
@@ -2696,16 +2694,8 @@ async function startSelfieCam() {
     const video = document.getElementById('co-selfie-video');
     video.srcObject = coCameraStream;
 
-    document.getElementById('co-cam-btn').innerHTML = `
-     <svg xmlns="http://www.w3.org/2000/svg"
-       width="16"
-       height="16"
-       viewBox="0 0 24 24"
-       fill="currentColor"
-       style="vertical-align:middle;margin-right:6px;">
-    <path d="M20 5h-3.2l-1.8-2h-6L7.2 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-8 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
-  </svg>
-  Capture`;
+    document.getElementById('co-cam-btn').innerHTML = `<i data-lucide="camera" style="vertical-align:middle;margin-right:6px;"></i> Capture`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
     document.getElementById('co-cam-btn').onclick = captureSelfie;
   } catch (err) {
     showToast('Could not access camera — ' + (err.message || 'permission denied'), 'error');
@@ -2725,23 +2715,8 @@ function captureSelfie() {
   box.innerHTML = `<img src="${coSelfieDataUrl}" alt="Selfie">`;
   stopSelfieCam();
 
-  document.getElementById('co-cam-btn').innerHTML = `
-  <svg xmlns="http://www.w3.org/2000/svg"
-       width="16"
-       height="16"
-       viewBox="0 0 24 24"
-       fill="none"
-       stroke="currentColor"
-       stroke-width="2"
-       stroke-linecap="round"
-       stroke-linejoin="round"
-       style="vertical-align:middle;margin-right:6px;">
-    <polyline points="23 4 23 10 17 10"></polyline>
-    <polyline points="1 20 1 14 7 14"></polyline>
-    <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
-    <path d="M20.49 15a9 9 0 0 1-14.13 3.36L1 14"></path>
-  </svg>
-  Retake`;
+  document.getElementById('co-cam-btn').innerHTML = `<i data-lucide="refresh-cw" style="vertical-align:middle;margin-right:6px;"></i> Retake`;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
   document.getElementById('co-cam-btn').onclick = startSelfieCam;
   document.getElementById('co-step2-next').disabled = false;
 }
@@ -2776,7 +2751,8 @@ async function submitClockOut() {
 
     if (!res.ok) {
       showToast(data.message || 'Could not clock out', 'error');
-      btn.disabled = false; btn.textContent = '✓ Confirm Clock Out';
+      btn.disabled = false; btn.innerHTML = '<i data-lucide="check"></i> Confirm Clock Out';
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       return;
     }
 
@@ -2789,7 +2765,8 @@ async function submitClockOut() {
     showToast('Cannot reach server — try again', 'error');
   }
   btn.disabled = false;
-  btn.textContent = '✓ Confirm Clock Out';
+  btn.innerHTML = '<i data-lucide="check"></i> Confirm Clock Out';
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function renderClockOutConfirmation(record, summary) {
@@ -2819,7 +2796,7 @@ function renderClockOutConfirmation(record, summary) {
 
   const gpsChip = document.getElementById('cf-gps-chip');
   gpsChip.className = 'co-verify-chip ' + (gpsOk ? 'ok' : 'fail');
-  gpsChip.textContent = gpsOk ? '📍 Location: Verified' : '📍 Location: Outside Premises';
+  gpsChip.innerHTML = gpsOk ? '<i data-lucide="map-pin"></i> Location: Verified' : '<i data-lucide="map-pin"></i> Location: Outside Premises';
 
   const selfieChip = document.getElementById('cf-selfie-chip');
   selfieChip.className = 'co-verify-chip ' + (selfieOk ? 'ok' : 'fail');
@@ -2827,6 +2804,7 @@ function renderClockOutConfirmation(record, summary) {
 
   document.getElementById('co-confirm-sub').textContent =
     suspicious ? 'This clock-out was flagged for manager review (outside authorized location)' : 'Have a great rest of your day';
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 /* ── Attendance history table ── */
@@ -2888,8 +2866,9 @@ function logout() {
 let toastTimer;
 function showToast(msg, type = 'success') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  t.innerHTML   = msg;
   t.className   = `toast ${type} show`;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { t.className = 'toast'; }, 2400);
 }

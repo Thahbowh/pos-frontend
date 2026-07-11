@@ -16,6 +16,15 @@
   </script>
 
 
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+  .lucide { width: 16px; height: 16px; stroke: currentColor; vertical-align: middle; flex-shrink: 0; }
+  .logout-btn svg, .range-btn svg, .ord-export-btn svg, .exp-export-btn svg, .exp-save-btn svg,
+  .btn-ghost svg, .view-toggle-btn svg, .hamburger-btn svg { width: 14px; height: 14px; }
+  .ord-sum-label svg, .an-card-title svg, .exp-chart-title svg { width: 13px; height: 13px; }
+  .usr-sum-icon svg, .an-kpi-icon svg { width: 20px; height: 20px; }
+  </style>
   <style>
   :root {
   --bg:        #0f0f0f;
@@ -2545,7 +2554,7 @@ button {
     </ul>
 
     <div class="sidebar-footer">
-      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+      <button class="logout-btn" onclick="logout()"><i data-lucide="log-out"></i> Logout</button>
     </div>
   </div>
 
@@ -2554,7 +2563,7 @@ button {
 
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:12px;">
-        <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+        <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu"><i data-lucide="menu"></i></button>
         <div>
           <div class="topbar-title">Control Panel</div>
           <div class="topbar-sub" id="topbar-date"></div>
@@ -2562,7 +2571,7 @@ button {
       </div>
 
       <div class="topbar-right">
-        <input type="text" id="search" placeholder="🔍 Search orders..." oninput="filterOrders(this.value)">
+        <input type="text" id="search" placeholder="Search orders..." oninput="filterOrders(this.value)">
         <div class="admin-badge">
           <div class="admin-dot"></div>
           <span id="admin-name">Admin</span>
@@ -2649,9 +2658,9 @@ button {
       </div>
       <!-- View tabs -->
       <div style="display:flex;gap:6px;">
-        <button class="range-btn active" id="vbtn-trend"    onclick="setGraphView('trend',   this)" style="font-size:10px;padding:3px 10px;">📈 Trend</button>
-        <button class="range-btn"        id="vbtn-peak"     onclick="setGraphView('peak',    this)" style="font-size:10px;padding:3px 10px;">🔥 Peak Hours</button>
-        <button class="range-btn"        id="vbtn-category" onclick="setGraphView('category',this)" style="font-size:10px;padding:3px 10px;">🍺 By Category</button>
+        <button class="range-btn active" id="vbtn-trend"    onclick="setGraphView('trend',   this)" style="font-size:10px;padding:3px 10px;"><i data-lucide="trending-up"></i> Trend</button>
+        <button class="range-btn"        id="vbtn-peak"     onclick="setGraphView('peak',    this)" style="font-size:10px;padding:3px 10px;"><i data-lucide="flame"></i> Peak Hours</button>
+        <button class="range-btn"        id="vbtn-category" onclick="setGraphView('category',this)" style="font-size:10px;padding:3px 10px;"><i data-lucide="beer"></i> By Category</button>
       </div>
     </div>
   </div>
@@ -2678,19 +2687,19 @@ button {
       <div class="ord-sum-value" id="sum-total">0</div>
      </div>
      <div class="ord-sum-card pending-card">
-      <div class="ord-sum-label">⏳ Pending</div>
+      <div class="ord-sum-label"><i data-lucide="hourglass"></i> Pending</div>
       <div class="ord-sum-value" id="sum-pending">0</div>
      </div>
      <div class="ord-sum-card completed-card">
-      <div class="ord-sum-label">✓ Completed</div>
+      <div class="ord-sum-label"><i data-lucide="check"></i> Completed</div>
       <div class="ord-sum-value" id="sum-completed">0</div>
      </div>
      <div class="ord-sum-card cancelled-card">
-      <div class="ord-sum-label">✕ Cancelled</div>
+      <div class="ord-sum-label"><i data-lucide="x"></i> Cancelled</div>
       <div class="ord-sum-value" id="sum-cancelled">0</div>
      </div>
      <div class="ord-sum-card revenue-card">
-       <div class="ord-sum-label">💰 Revenue</div>
+       <div class="ord-sum-label"><i data-lucide="banknote"></i> Revenue</div>
       <div class="ord-sum-value" id="sum-revenue">R0</div>
      </div>
      </div>
@@ -2698,7 +2707,7 @@ button {
      <!-- 2. FILTERS -->
      <div class="ord-filters">
      <input class="ord-search" type="text" id="ord-search-input"
-           placeholder="🔎 Search by order ID or customer..."
+           placeholder="Search by order ID or customer..."
            oninput="applyOrderFilters()">
 
      <select class="ord-filter-select" id="ord-status-filter" onchange="applyOrderFilters()">
@@ -2721,7 +2730,7 @@ button {
       <option value="online">Online</option>
      </select>
 
-      <button class="ord-export-btn" onclick="exportOrdersCSV()">⬇ Export CSV</button>
+      <button class="ord-export-btn" onclick="exportOrdersCSV()"><i data-lucide="download"></i> Export CSV</button>
 
      </div>
 
@@ -2751,7 +2760,7 @@ button {
 
      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
       <h3 style="margin:0;" id="detail-order-id">Order #0000</h3>
-      <button onclick="closeOrderModal()" style="background:transparent; color:#888; font-size:18px; padding:0; border:none; cursor:pointer;">✕</button>
+      <button onclick="closeOrderModal()" style="background:transparent; color:#888; font-size:18px; padding:0; border:none; cursor:pointer;"><i data-lucide="x"></i></button>
      </div>
 
      <!-- Customer + Meta -->
@@ -2803,32 +2812,32 @@ button {
       </div>
       <div class="prod-toolbar-right">
         <input class="prod-search" type="text" id="prod-search"
-               placeholder="🔎 Search products..."
+               placeholder="Search products..."
                oninput="filterProducts()">
         <select class="prod-cat-filter" id="prod-cat-filter" onchange="filterProducts()">
           <option value="all">All Categories</option>
-          <option value="beer">🍺 Beer</option>
-          <option value="cider">🍹 Cider</option>
-          <option value="whiskey">🍹 Whiskey</option>
-          <option value="wine">🍹 Wine</option>
-          <option value="vodka">🍹 Vodka</option>
-          <option value="food">🍗 Food</option>
-          <option value="hubbly">🍹 Hubbly</option>
-          <option value="cigarettes">🚬 Cigarettes</option>
+          <option value="beer">Beer</option>
+          <option value="cider">Cider</option>
+          <option value="whiskey">Whiskey</option>
+          <option value="wine">Wine</option>
+          <option value="vodka">Vodka</option>
+          <option value="food">Food</option>
+          <option value="hubbly">Hubbly</option>
+          <option value="cigarettes">Cigarettes</option>
         </select>
 
         <select class="prod-cat-filter" id="prod-stock-filter" onchange="filterProducts()">
           <option value="all">All Stock</option>
-          <option value="low">⚠ Low Stock</option>
-          <option value="ok">✓ In Stock</option>
+          <option value="low">Low Stock</option>
+          <option value="ok">In Stock</option>
         </select>
 
         <div class="prod-view-toggle">
           <button class="view-toggle-btn active" id="view-grid" onclick="setProductView('grid')" title="Grid view">⊞</button>
-          <button class="view-toggle-btn"        id="view-list" onclick="setProductView('list')" title="List view">☰</button>
+          <button class="view-toggle-btn"        id="view-list" onclick="setProductView('list')" title="List view"><i data-lucide="list"></i></button>
         </div>
 
-        <button class="btn-ghost" onclick="openBarcodeScanner()">📷 Scan Barcode</button>
+        <button class="btn-ghost" onclick="openBarcodeScanner()"><i data-lucide="camera"></i> Scan Barcode</button>
         <button class="btn" onclick="openModal()">+ Add Product</button>
       </div>
      </div>
@@ -2878,7 +2887,7 @@ button {
  
      <!-- EMPTY STATE -->
      <div class="prod-empty" id="prod-empty" style="display:none;">
-     <div style="font-size:3rem; margin-bottom:12px;">📦</div>
+     <div style="margin-bottom:12px;"><i data-lucide="package" style="width:3rem;height:3rem"></i></div>
       <div style="font-size:15px; font-weight:600; color:#fff; margin-bottom:6px;">No products found</div>
       <div style="font-size:13px; color:#555;">Try adjusting your search or filters</div>
      </div>
@@ -2893,28 +2902,28 @@ button {
      <!-- SUMMARY STRIP -->
      <div class="usr-summary">
      <div class="usr-sum-card">
-      <div class="usr-sum-icon">👥</div>
+      <div class="usr-sum-icon"><i data-lucide="users"></i></div>
       <div>
         <div class="usr-sum-value" id="usr-total">—</div>
         <div class="usr-sum-label">Total Users</div>
       </div>
      </div>
      <div class="usr-sum-card">
-      <div class="usr-sum-icon" style="background:rgba(245,200,66,0.1); color:gold;">👑</div>
+      <div class="usr-sum-icon" style="background:rgba(245,200,66,0.1); color:gold;"><i data-lucide="crown"></i></div>
       <div>
         <div class="usr-sum-value" id="usr-admins">—</div>
         <div class="usr-sum-label">Admins</div>
       </div>
      </div>
      <div class="usr-sum-card">
-      <div class="usr-sum-icon" style="background:rgba(96,165,250,0.1); color:#60a5fa;">🧑</div>
+      <div class="usr-sum-icon" style="background:rgba(96,165,250,0.1); color:#60a5fa;"><i data-lucide="user"></i></div>
       <div>
         <div class="usr-sum-value" id="usr-customers">—</div>
         <div class="usr-sum-label">Customers</div>
       </div>
      </div>
      <div class="usr-sum-card">
-      <div class="usr-sum-icon" style="background:rgba(34,197,94,0.1); color:#22c55e;">📅</div>
+      <div class="usr-sum-icon" style="background:rgba(34,197,94,0.1); color:#22c55e;"><i data-lucide="calendar"></i></div>
       <div>
         <div class="usr-sum-value" id="usr-new">—</div>
         <div class="usr-sum-label">New This Week</div>
@@ -2925,12 +2934,12 @@ button {
      <!-- TOOLBAR -->
      <div class="usr-toolbar">
      <input class="usr-search" type="text" id="usr-search"
-           placeholder="🔎 Search by name or email..."
+           placeholder="Search by name or email..."
            oninput="filterUsers()">
      <select class="usr-filter-select" id="usr-role-filter" onchange="filterUsers()">
       <option value="all">All Roles</option>
-      <option value="admin">👑 Admin</option>
-      <option value="customer">🧑 Customer</option>
+      <option value="admin">Admin</option>
+      <option value="customer">Customer</option>
       </select>
       <button class="usr-add-btn" onclick="openUserModal()">+ Add User</button>
       </div>
@@ -2961,7 +2970,7 @@ button {
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h3 id="user-modal-title" style="margin:0; color:gold;">Add User</h3>
         <button onclick="closeUserModal()"
-          style="background:transparent; color:#888; font-size:18px; padding:0; border:none; cursor:pointer;">✕</button>
+          style="background:transparent; color:#888; font-size:18px; padding:0; border:none; cursor:pointer;"><i data-lucide="x"></i></button>
       </div>
  
        <input type="hidden" id="user-modal-id">
@@ -2979,9 +2988,9 @@ button {
          <div class="form-group">
         <label>Role</label>
         <select id="user-modal-role">
-          <option value="customer">🧑 Customer</option>
-          <option value="staff">🧑 Staff</option>
-          <option value="admin">👑 Admin</option>
+          <option value="customer">Customer</option>
+          <option value="staff">Staff</option>
+          <option value="admin">Admin</option>
         </select>
          </div>
  
@@ -3029,7 +3038,7 @@ button {
       <!-- KPI CARDS -->
       <div class="an-kpi-grid">
         <div class="an-kpi-card">
-          <div class="an-kpi-icon" style="background:rgba(245,200,66,0.1);color:gold;">💰</div>
+          <div class="an-kpi-icon" style="background:rgba(245,200,66,0.1);color:gold;"><i data-lucide="banknote"></i></div>
           <div class="an-kpi-body">
             <div class="an-kpi-label">Revenue</div>
             <div class="an-kpi-value" id="kpi-revenue">R0</div>
@@ -3038,7 +3047,7 @@ button {
         </div>
 
         <div class="an-kpi-card">
-          <div class="an-kpi-icon" style="background:rgba(96,165,250,0.1);color:#60a5fa;">🧾</div>
+          <div class="an-kpi-icon" style="background:rgba(96,165,250,0.1);color:#60a5fa;"><i data-lucide="receipt"></i></div>
           <div class="an-kpi-body">
             <div class="an-kpi-label">Total Orders</div>
             <div class="an-kpi-value" id="kpi-orders">0</div>
@@ -3047,7 +3056,7 @@ button {
         </div>
 
         <div class="an-kpi-card">
-          <div class="an-kpi-icon" style="background:rgba(34,197,94,0.1);color:#22c55e;">👥</div>
+          <div class="an-kpi-icon" style="background:rgba(34,197,94,0.1);color:#22c55e;"><i data-lucide="users"></i></div>
           <div class="an-kpi-body">
             <div class="an-kpi-label">Customers</div>
             <div class="an-kpi-value" id="kpi-customers">0</div>
@@ -3056,7 +3065,7 @@ button {
         </div>
 
         <div class="an-kpi-card">
-          <div class="an-kpi-icon" style="background:rgba(167,139,250,0.1);color:#a78bfa;">📈</div>
+          <div class="an-kpi-icon" style="background:rgba(167,139,250,0.1);color:#a78bfa;"><i data-lucide="trending-up"></i></div>
           <div class="an-kpi-body">
             <div class="an-kpi-label">Avg Order Value</div>
             <div class="an-kpi-value" id="kpi-aov">R0</div>
@@ -3065,7 +3074,7 @@ button {
         </div>
 
         <div class="an-kpi-card">
-          <div class="an-kpi-icon" style="background:rgba(249,115,22,0.1);color:#f97316;">🔥</div>
+          <div class="an-kpi-icon" style="background:rgba(249,115,22,0.1);color:#f97316;"><i data-lucide="flame"></i></div>
           <div class="an-kpi-body">
             <div class="an-kpi-label">Best Day</div>
             <div class="an-kpi-value" id="kpi-bestday" style="font-size:15px;">—</div>
@@ -3099,7 +3108,7 @@ button {
      </div>
      <div class="an-card">
       <div class="an-card-header">
-        <div class="an-card-title">🥧 Sales by Category</div>
+        <div class="an-card-title"><i data-lucide="chart-pie"></i> Sales by Category</div>
       </div>
       <div class="an-donut-wrap">
         <canvas id="an-donut-chart"></canvas>
@@ -3116,7 +3125,7 @@ button {
      <div class="an-row">
      <div class="an-card">
       <div class="an-card-header">
-        <div class="an-card-title">⏰ Peak Hours</div>
+        <div class="an-card-title"><i data-lucide="clock"></i> Peak Hours</div>
         <div class="an-card-sub">When customers order most</div>
       </div>
       <canvas id="an-hours-chart" height="150"></canvas>
@@ -3124,7 +3133,7 @@ button {
      </div>
      <div class="an-card">
       <div class="an-card-header">
-        <div class="an-card-title">💳 Payment Methods</div>
+        <div class="an-card-title"><i data-lucide="credit-card"></i> Payment Methods</div>
       </div>
       <div class="an-donut-wrap">
         <canvas id="an-payment-chart"></canvas>
@@ -3137,7 +3146,7 @@ button {
      </div>
      <div class="an-card">
       <div class="an-card-header">
-        <div class="an-card-title">📅 Best Days</div>
+        <div class="an-card-title"><i data-lucide="calendar"></i> Best Days</div>
         <div class="an-card-sub">Avg revenue by weekday</div>
       </div>
       <canvas id="an-days-chart" height="150"></canvas>
@@ -3148,18 +3157,18 @@ button {
      <div class="an-row">
      <div class="an-card an-card-wide">
       <div class="an-card-header">
-        <div class="an-card-title">📦 Top Performing Products</div>
+        <div class="an-card-title"><i data-lucide="package"></i> Top Performing Products</div>
         <div class="an-card-sub">Ranked by revenue generated</div>
       </div>
       <div id="an-top-products"></div>
      </div>
      <div class="an-card">
       <div class="an-card-header">
-        <div class="an-card-title">🧍 Customer Insights</div>
+        <div class="an-card-title"><i data-lucide="user-round"></i> Customer Insights</div>
       </div>
       <div id="an-customer-stats"></div>
       <div style="margin-top:16px;">
-        <div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🏆 Top Spenders</div>
+        <div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;"><i data-lucide="trophy"></i> Top Spenders</div>
         <div id="an-top-customers"></div>
       </div>
       </div>
@@ -3181,8 +3190,8 @@ button {
       <p style="font-size:12px;color:#333;">Track all business costs and see real profit vs income from your POS</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="exp-export-btn" onclick="exportExpensesCSV()" style="padding:9px 14px;">📥 Export CSV</button>
-      <button class="exp-export-btn" onclick="printFinancialReport()" style="padding:9px 14px;">🖨 Print Report</button>
+      <button class="exp-export-btn" onclick="exportExpensesCSV()" style="padding:9px 14px;"><i data-lucide="download"></i> Export CSV</button>
+      <button class="exp-export-btn" onclick="printFinancialReport()" style="padding:9px 14px;"><i data-lucide="printer"></i> Print Report</button>
       <button onclick="openExpenseForm()" style="padding:9px 16px;background:linear-gradient(135deg,#f5c842,#e6a800);border:none;border-radius:10px;color:#0a0a0a;font-size:13px;font-weight:800;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">+ Add Expense</button>
     </div>
   </div>
@@ -3200,7 +3209,7 @@ button {
  
     <!-- LEFT: Quick-add form (always visible) -->
     <div class="exp-form-card">
-      <h3>📝 Quick Add Expense</h3>
+      <h3><i data-lucide="square-pen"></i> Quick Add Expense</h3>
  
       <div class="exp-field">
         <label>Expense Name *</label>
@@ -3210,14 +3219,14 @@ button {
       <div class="exp-field">
         <label>Category *</label>
         <select id="exp-inline-category">
-          <option value="rent">🏠 Rent</option>
-          <option value="electricity">⚡ Electricity</option>
-          <option value="salaries">👥 Employee Salaries</option>
-          <option value="stock">📦 Stock / Products</option>
-          <option value="internet">🌐 Internet</option>
-          <option value="marketing">📣 Marketing / Ads</option>
-          <option value="transport">🚗 Transport</option>
-          <option value="other" selected>📋 Other</option>
+          <option value="rent">Rent</option>
+          <option value="electricity">Electricity</option>
+          <option value="salaries">Employee Salaries</option>
+          <option value="stock">Stock / Products</option>
+          <option value="internet">Internet</option>
+          <option value="marketing">Marketing / Ads</option>
+          <option value="transport">Transport</option>
+          <option value="other" selected>Other</option>
         </select>
       </div>
  
@@ -3238,7 +3247,7 @@ button {
  
       <div class="exp-form-error" id="exp-inline-error"></div>
  
-      <button class="exp-save-btn" onclick="saveInlineExpense()">💾 Save Expense</button>
+      <button class="exp-save-btn" onclick="saveInlineExpense()"><i data-lucide="save"></i> Save Expense</button>
     </div>
  
     <!-- RIGHT: Expenses Table -->
@@ -3247,19 +3256,19 @@ button {
       <!-- Toolbar -->
       <div class="exp-table-toolbar">
         <input class="exp-search-input" type="text" id="exp-search"
-               placeholder="🔎 Search expenses..."
+               placeholder="Search expenses..."
                oninput="applyExpFilters()">
  
         <select class="exp-filter-select" id="exp-cat-filter" onchange="applyExpFilters()">
           <option value="all">All Categories</option>
-          <option value="rent">🏠 Rent</option>
-          <option value="electricity">⚡ Electricity</option>
-          <option value="salaries">👥 Salaries</option>
-          <option value="stock">📦 Stock</option>
-          <option value="internet">🌐 Internet</option>
-          <option value="marketing">📣 Marketing</option>
-          <option value="transport">🚗 Transport</option>
-          <option value="other">📋 Other</option>
+          <option value="rent">Rent</option>
+          <option value="electricity">Electricity</option>
+          <option value="salaries">Salaries</option>
+          <option value="stock">Stock</option>
+          <option value="internet">Internet</option>
+          <option value="marketing">Marketing</option>
+          <option value="transport">Transport</option>
+          <option value="other">Other</option>
         </select>
  
         <select class="exp-filter-select" id="exp-date-filter" onchange="applyExpFilters()">
@@ -3305,7 +3314,7 @@ button {
  
     <!-- Category breakdown donut -->
     <div class="exp-chart-card">
-      <div class="exp-chart-title">🥧 Spending by Category</div>
+      <div class="exp-chart-title"><i data-lucide="chart-pie"></i> Spending by Category</div>
       <div style="position:relative;height:180px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
         <canvas id="exp-cat-chart"></canvas>
       </div>
@@ -3314,13 +3323,13 @@ button {
  
     <!-- Monthly income vs expenses bar -->
     <div class="exp-chart-card">
-      <div class="exp-chart-title">📊 Monthly: Income vs Expenses</div>
+      <div class="exp-chart-title"><i data-lucide="chart-column"></i> Monthly: Income vs Expenses</div>
       <canvas id="exp-monthly-chart" height="120"></canvas>
     </div>
  
     <!-- Profit/loss trend -->
     <div class="exp-chart-card">
-      <div class="exp-chart-title">📈 Profit & Loss Trend</div>
+      <div class="exp-chart-title"><i data-lucide="trending-up"></i> Profit & Loss Trend</div>
       <canvas id="exp-incvexp-chart" height="120"></canvas>
     </div>
  
@@ -3339,8 +3348,8 @@ button {
      <div class="cam-modal-overlay" id="cam-modal">
        <div class="cam-modal">
          <div class="cam-modal-head">
-           <h3>📷 Camera Barcode Scanner</h3>
-           <button class="cam-close-btn" onclick="closeCameraScanner()">✕</button>
+           <h3><i data-lucide="camera"></i> Camera Barcode Scanner</h3>
+           <button class="cam-close-btn" onclick="closeCameraScanner()"><i data-lucide="x"></i></button>
          </div>
          <video id="cam-preview" autoplay playsinline muted></video>
          <div class="cam-result" id="cam-result">Point camera at a barcode...</div>
@@ -3369,7 +3378,7 @@ button {
         <label>Barcode</label>
         <div style="display:flex; gap:8px;">
         <input type="text" id="product-barcode" placeholder="Scan or type barcode...">
-        <button class="btn-ghost" onclick="startBarcodeCapture('product-barcode')">📷</button>
+        <button class="btn-ghost" onclick="startBarcodeCapture('product-barcode')"><i data-lucide="camera"></i></button>
       </div>
       </div>
 
@@ -3411,11 +3420,11 @@ button {
           </div>
           <div style="flex:1;">
             <input type="number" id="product-low-stock" placeholder="Alert at e.g. 5" min="1" oninput="checkLowStockWarn()" style="border-color:#ef9f2760;">
-            <span style="font-size:11px; color:#ef9f27; margin-top:4px; display:block;">⚠ Low stock alert at</span>
+            <span style="font-size:11px; color:#ef9f27; margin-top:4px; display:block;"><i data-lucide="alert-triangle"></i> Low stock alert at</span>
           </div>
         </div>
         <div id="low-stock-warn" style="display:none; font-size:11px; color:#ef9f27; margin-top:6px; padding:6px 8px; background:#2d220080; border-radius:5px; border:1px solid #ef9f2740;">
-         ⚠ Stock is at or below alert threshold — will appear in low stock dashboard immediately
+         <i data-lucide="alert-triangle"></i> Stock is at or below alert threshold — will appear in low stock dashboard immediately
         </div>
       </div>
 
@@ -3594,7 +3603,7 @@ button {
 
    // 3. Not in local DB — look it up online
    showSpinner(true);
-   setStatus('scanning', `🌐 Searching online for <strong>${barcode}</strong>...`);
+   setStatus('scanning', `<i data-lucide="globe"></i> Searching online for <strong>${barcode}</strong>...`);
 
    let onlineProduct = await lookupBarcodeOnline(barcode);
    showSpinner(false);
@@ -3603,12 +3612,12 @@ button {
      // Found online — show card, let user save it
      playBeep('success');
      flashScreen('green');
-     setStatus('ready', `✅ Found online: <strong>${onlineProduct.name}</strong> — Save it to add to inventory`);
+     setStatus('ready', `<i data-lucide="check-circle"></i> Found online: <strong>${onlineProduct.name}</strong> — Save it to add to inventory`);
      showFoundOnlineCard(onlineProduct, barcode);
    } else {
      playBeep('error');
      flashScreen('red');
-     setStatus('error', `⚠ <strong>Not found</strong> — barcode ${barcode} is unknown`);
+     setStatus('error', `<i data-lucide="alert-triangle"></i> <strong>Not found</strong> — barcode ${barcode} is unknown`);
      showScanIdle();
    }
  }
@@ -3690,7 +3699,7 @@ button {
 
    card.innerHTML = `
      <div class="scan-found-online-head">
-       <div class="scan-found-online-badge">🌐 Found Online</div>
+       <div class="scan-found-online-badge"><i data-lucide="globe"></i> Found Online</div>
        <div class="scan-found-online-title">via ${p.source} · barcode: ${barcode}</div>
      </div>
      <div class="scan-found-online-body">
@@ -3704,7 +3713,7 @@ button {
          </div>
          <div class="scan-found-online-actions">
            <button class="scan-save-btn" onclick="saveOnlineProduct(${JSON.stringify(p).replace(/"/g,'&quot;')})">
-             ➕ Save to Inventory
+             <i data-lucide="plus"></i> Save to Inventory
            </button>
            <button class="scan-dismiss-btn" onclick="dismissFoundCard()">Dismiss</button>
          </div>
@@ -3712,6 +3721,7 @@ button {
      </div>
    `;
    card.classList.add('show');
+   if (typeof lucide !== 'undefined') lucide.createIcons();
 
    // Also show in product panel for completeness
    showProductResult({
@@ -3764,7 +3774,7 @@ button {
    if (outOfStock) {
      playBeep('error');
      flashScreen('red');
-     setStatus('error', `⛔ <strong>${product.name}</strong> is OUT OF STOCK`);
+     setStatus('error', `<i data-lucide="ban"></i> <strong>${product.name}</strong> is OUT OF STOCK`);
      return;
    }
 
@@ -3772,7 +3782,7 @@ button {
    addToCart(product);
    playBeep('success');
    flashScreen('green');
-   setStatus('ready', `✅ <strong>${product.name}</strong> added to cart`);
+   setStatus('ready', `<i data-lucide="check-circle"></i> <strong>${product.name}</strong> added to cart`);
  }
 
  function showProductResult(product, outOfStock) {
@@ -3790,7 +3800,7 @@ button {
    } else {
      img.style.display = 'none';
      emoji.style.display = 'flex';
-     emoji.textContent = categoryEmoji(product.category);
+     emoji.innerHTML = categoryEmoji(product.category);
    }
 
    // Stock badge
@@ -3815,6 +3825,7 @@ button {
 
    // Out of stock blocker
    document.getElementById('scan-blocked').classList.toggle('show', outOfStock);
+   if (typeof lucide !== 'undefined') lucide.createIcons();
  }
 
  function showScanIdle() {
@@ -3882,6 +3893,7 @@ button {
 
    totalEl.textContent = `R${total.toFixed(2)}`;
    countEl.textContent = `${itemCount} item${itemCount !== 1 ? 's' : ''}`;
+   if (typeof lucide !== 'undefined') lucide.createIcons();
  }
 
  function adjustQty(idx, delta) {
@@ -3930,7 +3942,7 @@ button {
    scanState.stocktake.push({ product, systemQty: product.stock, counted: product.stock });
    playBeep('success');
    flashScreen('green');
-   setStatus('ready', `✅ <strong>${product.name}</strong> added to count`);
+   setStatus('ready', `<i data-lucide="check-circle"></i> <strong>${product.name}</strong> added to count`);
    renderStocktake();
  }
 
@@ -3958,7 +3970,7 @@ button {
          <input type="number" value="${entry.counted}" min="0"
                 style="width:65px;padding:4px 8px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;color:#fff;font-size:12px;text-align:center;"
                 onchange="updateStocktakeCount(${idx}, this.value)">
-         <span class="stocktake-counted ${cls}">${diff !== 0 ? sign : '✓'}</span>
+         <span class="stocktake-counted ${cls}">${diff !== 0 ? sign : '<i data-lucide="check"></i>'}</span>
        </div>`;
    }).join('');
 
@@ -3968,6 +3980,7 @@ button {
        <div class="scan-stat-box"><div class="scan-stat-val" style="color:${discrepancies ? '#f97316':'#22c55e'}">${discrepancies}</div><div class="scan-stat-lbl">Discrepancies</div></div>
      </div>
    `;
+   if (typeof lucide !== 'undefined') lucide.createIcons();
  }
 
  function updateStocktakeCount(idx, val) {
@@ -4004,7 +4017,7 @@ button {
    }
    playBeep('success');
    flashScreen('green');
-   setStatus('ready', `✅ <strong>${product.name}</strong> — ${scanState.receiving.find(i=>i.product.id===product.id).qty} received`);
+   setStatus('ready', `<i data-lucide="check-circle"></i> <strong>${product.name}</strong> — ${scanState.receiving.find(i=>i.product.id===product.id).qty} received`);
    renderReceiving();
  }
 
@@ -4024,7 +4037,7 @@ button {
        <span class="receiving-item-name">${entry.product.name}</span>
        <input class="receiving-qty-input" type="number" value="${entry.qty}" min="1"
               onchange="updateReceivingQty(${idx}, this.value)">
-       <button class="receiving-confirm-btn" onclick="removeReceiving(${idx})">✕</button>
+       <button class="receiving-confirm-btn" onclick="removeReceiving(${idx})"><i data-lucide="x"></i></button>
      </div>
    `).join('');
 
@@ -4035,6 +4048,7 @@ button {
        <div class="scan-stat-box"><div class="scan-stat-val">${totalItems}</div><div class="scan-stat-lbl">Total Units</div></div>
      </div>
    `;
+   if (typeof lucide !== 'undefined') lucide.createIcons();
  }
 
  function updateReceivingQty(idx, val) {
@@ -4084,14 +4098,16 @@ button {
 
      codeReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
        if (result) {
-         resultEl.textContent = `✅ Found: ${result.getText()}`;
+         resultEl.innerHTML = `<i data-lucide="check-circle"></i> Found: ${result.getText()}`;
          resultEl.style.color = '#22c55e';
+         if (typeof lucide !== 'undefined') lucide.createIcons();
          closeCameraScanner();
          processBarcode(result.getText());
        }
      });
    } catch (err) {
-     document.getElementById('cam-result').textContent = '⚠ Camera access denied or not available';
+     document.getElementById('cam-result').innerHTML = '<i data-lucide="alert-triangle"></i> Camera access denied or not available';
+     if (typeof lucide !== 'undefined') lucide.createIcons();
    }
  }
 
@@ -4111,6 +4127,7 @@ button {
    if (!dot || !text) return;
    text.innerHTML = html;
    dot.className  = 'scan-status-dot' + (type === 'error' ? ' error' : type === 'scanning' ? '' : '');
+   if (typeof lucide !== 'undefined') lucide.createIcons();
  }
 
  // ── Stop scanner when leaving section ──────────
@@ -4129,8 +4146,9 @@ button {
 
  // ── Helpers ────────────────────────────────────
  function categoryEmoji(cat) {
-   const map = { beer:'🍺', cider:'🍹', whiskey:'🥃', wine:'🍷', vodka:'🍸', food:'🍗', hubbly:'💨', cigarettes:'🚬' };
-   return map[(cat||'').toLowerCase()] || '📦';
+   const map = { beer:'beer', cider:'apple', whiskey:'cup-soda', wine:'wine', vodka:'martini', food:'utensils', hubbly:'cloud', cigarettes:'cigarette' };
+   const icon = map[(cat||'').toLowerCase()] || 'package';
+   return `<i data-lucide="${icon}"></i>`;
  }
 
  // Expose for modal barcode button (product add/edit)
@@ -4171,6 +4189,9 @@ button {
      if (window.innerWidth <= 768) closeSidebar();
    });
  });
+
+ // Render all static lucide icons once the page has parsed
+ if (typeof lucide !== 'undefined') lucide.createIcons();
 
  </script>
 </html>

@@ -6,7 +6,17 @@
   <title>Customer My Dashboard</title>
   
   <link rel="stylesheet" href="customerdash.css">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">  
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    .nav-icon svg, .mob-icon svg, .stat-icon svg, .tier-icon svg,
+    .welcome-emoji svg, .order-icon svg, .empty-icon svg { width: 1em; height: 1em; stroke: currentColor; }
+    .nav-icon svg, .stat-icon svg { width: 22px; height: 22px; }
+    .tier-icon svg, .welcome-emoji svg, .order-icon svg { width: 28px; height: 28px; }
+    .empty-icon svg { width: 64px; height: 64px; }
+    h4#tierName svg, h2 svg { width: 1em; height: 1em; vertical-align: middle; }
+    .status-badge svg, .toast svg { width: 14px; height: 14px; vertical-align: middle; }
+  </style>
 </head>
 <body>
 
@@ -24,29 +34,21 @@
 
     <a class="nav-item active" onclick="showSection('home', this)">
       <span class="nav-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 3l9 8h-3v10h-5v-6H11v6H6V11H3z"/>
-        </svg>
+        <i data-lucide="house"></i>
       </span>
       Home
     </a>
 
     <a class="nav-item" onclick="goToShop(this)">
       <span class="nav-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M6 7V6a6 6 0 1 1 12 0v1h2v14H4V7h2zm2 0h8V6a4 4 0 1 0-8 0v1z"/>
-        </svg>
+        <i data-lucide="shopping-bag"></i>
       </span>
       Shop
     </a>
 
     <a class="nav-item" onclick="showSection('orders', this)">
       <span class="nav-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="9" cy="21" r="1"></circle>
-          <circle cx="20" cy="21" r="1"></circle>
-          <path d="M1 1h4l2.68 13.39A2 2 0 0 0 9.64 16H19.4a2 2 0 0 0 1.96-1.61L23 6H6"></path>
-        </svg>
+        <i data-lucide="shopping-cart"></i>
       </span>
         Orders
       <span class="nav-badge" id="pendingBadge">0</span>
@@ -54,9 +56,7 @@
 
     <a class="nav-item" onclick="showSection('rewards', this)">
       <span class="nav-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20 12v10H4V12M22 7h-4.18A3 3 0 0 0 12 3a3 3 0 0 0-5.82 4H2v5h20V7z"/>
-        </svg>
+        <i data-lucide="gift"></i>
       </span>
       Rewards
     </a>
@@ -65,28 +65,14 @@
 
     <a class="nav-item" onclick="showSection('settings', this)">
       <span class="nav-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.28 7.28 0 0 0-1.63-.94L14.5 2.5a.5.5 0 0 0-.49-.5h-4.02a.5.5 0 0 0-.49.5L9.13 5.32a7.28 7.28 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.59 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.43 7.43 0 0 0-.05.94c0 .32.02.63.05.94L2.71 14.52a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.39 1.05.71 1.63.94l.37 2.82a.5.5 0 0 0 .49.5h4.02a.5.5 0 0 0 .49-.5l.37-2.82c.58-.23 1.13-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58z"/>
-        </svg>
+        <i data-lucide="settings"></i>
       </span>
       Settings
     </a>
 
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="logout()">
-        <svg xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
+        <i data-lucide="log-out" style="width:18px;height:18px;"></i>
         <span>Sign Out</span>
       </button>
     </div>
@@ -110,10 +96,10 @@
       <div class="section active" id="section-home">
         <div class="welcome-banner">
           <div>
-            <h2>Welcome back, <span id="welcomeName">Friend</span> 👋</h2>
+            <h2>Welcome back, <span id="welcomeName">Friend</span> <i data-lucide="hand"></i></h2>
             <p>Here's what's happening with your account today.</p>
           </div>
-          <div class="welcome-emoji">🍺</div>
+          <div class="welcome-emoji"><i data-lucide="beer"></i></div>
         </div>
 
         <div class="stats-grid">
@@ -121,11 +107,7 @@
           <!-- Total Orders -->
           <div class="stat-card">
             <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="9" cy="21" r="1"></circle>
-                <circle cx="20" cy="21" r="1"></circle>
-                <path d="M1 1h4l2.68 13.39A2 2 0 0 0 9.64 16H19.4a2 2 0 0 0 1.96-1.61L23 6H6"></path>
-              </svg>
+              <i data-lucide="shopping-cart"></i>
             </div>
             <div class="stat-value" id="statOrders">0</div>
             <div class="stat-label">Total Orders</div>
@@ -134,10 +116,7 @@
           <!-- Pending -->
           <div class="stat-card">
             <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 6v6l4 2"></path>
-              </svg>
+              <i data-lucide="clock"></i>
             </div>
             <div class="stat-value" id="statPending">0</div>
             <div class="stat-label">Pending</div>
@@ -146,10 +125,7 @@
           <!-- Total Spent -->
           <div class="stat-card">
             <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-                <circle cx="17" cy="12" r="1.5"></circle>
-              </svg>
+              <i data-lucide="credit-card"></i>
             </div>
             <div class="stat-value" id="statSpent">R0</div>
             <div class="stat-label">Total Spent</div>
@@ -158,9 +134,7 @@
           <!-- Points -->
           <div class="stat-card">
             <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="#FFB800">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
+              <i data-lucide="star" style="color:#FFB800;"></i>
             </div>
             <div class="stat-value" id="statPoints">0</div>
             <div class="stat-label">Points</div>
@@ -197,7 +171,7 @@
               </div>
             </div>
             <div class="points-info">
-              <h4 id="tierName">Bronze Member 🥉</h4>
+              <h4 id="tierName">Bronze Member <i data-lucide="medal"></i></h4>
               <p id="tierDesc">Earn 1 point per R10 spent</p>
               <p style="margin-top:6px;font-size:12px;" id="nextTierMsg"></p>
             </div>
@@ -215,17 +189,17 @@
 
           <div class="reward-tiers">
             <div class="tier unlocked">
-              <div class="tier-icon">🥉</div>
+              <div class="tier-icon"><i data-lucide="medal"></i></div>
               <div class="tier-name">Bronze</div>
               <div class="tier-pts">0 pts</div>
             </div>
             <div class="tier" id="silverTier">
-              <div class="tier-icon">🥈</div>
+              <div class="tier-icon"><i data-lucide="award"></i></div>
               <div class="tier-name">Silver</div>
               <div class="tier-pts">100 pts</div>
             </div>
             <div class="tier" id="goldTier">
-              <div class="tier-icon">🏆</div>
+              <div class="tier-icon"><i data-lucide="trophy"></i></div>
               <div class="tier-name">Gold VIP</div>
               <div class="tier-pts">300 pts</div>
             </div>
@@ -283,45 +257,35 @@
 
     <button class="mob-btn" onclick="goToShop(this)">
       <span class="mob-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-          <path d="M6 7V6a6 6 0 1 1 12 0v1h2v14H4V7h2zm2 0h8V6a4 4 0 1 0-8 0v1z"/>
-        </svg>
+        <i data-lucide="shopping-bag" style="width:22px;height:22px;"></i>
       </span>
       Shop
     </button>
 
     <button class="mob-btn" onclick="showSection('orders', this)">
       <span class="mob-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-          <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14h9.95a2 2 0 0 0 1.95-1.57L21 6H6.21L5.27 4H2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 8 19h11v-2H8l1.17-2z"/>
-        </svg>
+        <i data-lucide="shopping-cart" style="width:22px;height:22px;"></i>
       </span>
       Orders
     </button>
 
     <button class="mob-btn active" onclick="showSection('home', this)">
       <span class="mob-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-          <path d="M12 3l9 8h-3v10h-5v-6H11v6H6V11H3z"/>
-        </svg>
+        <i data-lucide="house" style="width:22px;height:22px;"></i>
       </span>
       Home
     </button>
 
     <button class="mob-btn" onclick="showSection('rewards', this)">
       <span class="mob-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-          <path d="M20 12v10H4V12M22 7h-4.18A3 3 0 0 0 12 3a3 3 0 0 0-5.82 4H2v5h20V7zm-10-2a1 1 0 0 1 1 1v1h-2V6a1 1 0 0 1 1-1zm-7 4h14v1H5V9z"/>
-        </svg>
+        <i data-lucide="gift" style="width:22px;height:22px;"></i>
       </span>
       Rewards
     </button>
 
     <button class="mob-btn" onclick="showSection('settings', this)">
       <span class="mob-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-          <path d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.28 7.28 0 0 0-1.63-.94L14.5 2.5a.5.5 0 0 0-.49-.5h-4.02a.5.5 0 0 0-.49.5L9.13 5.32a7.28 7.28 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.59 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.43 7.43 0 0 0-.05.94c0 .32.02.63.05.94L2.71 14.52a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.39 1.05.71 1.63.94l.37 2.82a.5.5 0 0 0 .49.5h4.02a.5.5 0 0 0 .49-.5l.37-2.82c.58-.23 1.13-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/>
-        </svg>
+        <i data-lucide="settings" style="width:22px;height:22px;"></i>
       </span>
       Settings
     </button>
@@ -341,6 +305,7 @@
     // ── Boot
     document.addEventListener("DOMContentLoaded", () => {
       initDashboard();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 
     function initDashboard() {
@@ -417,25 +382,12 @@
       if (!orders.length) {
         el.innerHTML = `<div class="empty-state">
         <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg"
-            width="64"
-            height="64"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M6 6h15l-1.5 9h-12z"/>
-            <path d="M6 6l-2-3H2"/>
-            <circle cx="9" cy="20" r="1"/>
-            <circle cx="18" cy="20" r="1"/>
-            <path d="M6 6l2 14h10"/>
-          </svg>
+          <i data-lucide="shopping-bag" style="width:64px;height:64px;"></i>
         </div>
 
   <p>No orders yet. <a href="index.html">Browse the menu →</a></p>
 </div>`;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
         return;
       }
 
@@ -443,11 +395,11 @@
         const items  = o.items.map(i => `${i.name} ×${i.qty}`).join(", ");
         const status = o.status || "pending";
         const scls   = { pending: "status-pending", completed: "status-completed", cancelled: "status-cancelled" }[status] || "status-pending";
-        const icon   = { pending: "⏳", completed: "✅", cancelled: "❌" }[status] || "⏳";
+        const icon   = { pending: '<i data-lucide="hourglass"></i>', completed: '<i data-lucide="check-circle"></i>', cancelled: '<i data-lucide="x"></i>' }[status] || '<i data-lucide="hourglass"></i>';
         const time   = o.time ? timeAgo(o.time) : "";
 
         return `<div class="order-card">
-          <div class="order-icon">🍺</div>
+          <div class="order-icon"><i data-lucide="beer"></i></div>
           <div class="order-details">
             <div class="order-id">${o.id || "—"}</div>
             <div class="order-items">${items}</div>
@@ -459,6 +411,7 @@
           </div>
         </div>`;
       }).join("");
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     // ── Rewards
@@ -482,23 +435,23 @@
       document.getElementById("statPoints").textContent = points;
 
       // Tier logic
-      let tier = "Bronze 🥉", tierDesc = "Earn 1 point per R10 spent", nextMsg = "", pct = 0;
+      let tier = 'Bronze <i data-lucide="medal"></i>', tierDesc = "Earn 1 point per R10 spent", nextMsg = "", pct = 0;
       if (points >= 300) {
-        tier = "Gold VIP 🏆"; tierDesc = "15% discount on all orders + free drink on birthday";
-        nextMsg = "You've reached the top tier! 🔥"; pct = 100;
+        tier = 'Gold VIP <i data-lucide="trophy"></i>'; tierDesc = "15% discount on all orders + free drink on birthday";
+        nextMsg = 'You\'ve reached the top tier! <i data-lucide="flame"></i>'; pct = 100;
         document.getElementById("goldTier").classList.add("unlocked");
         document.getElementById("silverTier").classList.add("unlocked");
       } else if (points >= 100) {
-        tier = "Silver 🥈"; tierDesc = "10% discount on orders over R200";
+        tier = 'Silver <i data-lucide="award"></i>'; tierDesc = "10% discount on orders over R200";
         nextMsg = `${300 - points} pts to Gold VIP`; pct = ((points - 100) / 200) * 100;
         document.getElementById("silverTier").classList.add("unlocked");
       } else {
         nextMsg = `${100 - points} pts to Silver`; pct = (points / 100) * 100;
       }
 
-      document.getElementById("tierName").textContent    = tier;
+      document.getElementById("tierName").innerHTML       = tier;
       document.getElementById("tierDesc").textContent    = tierDesc;
-      document.getElementById("nextTierMsg").textContent = nextMsg;
+      document.getElementById("nextTierMsg").innerHTML    = nextMsg;
       document.getElementById("progressPct").textContent = Math.round(pct) + "%";
       document.getElementById("progressFill").style.width = Math.min(pct, 100) + "%";
 
@@ -509,83 +462,38 @@
 
       // Perks
       const perks = [
-        { icon: `<svg xmlns="http://www.w3.org/2000/svg"
-         width="22"
-         height="22"
-         viewBox="0 0 24 24"
-         fill="#FFB800">
-         <path d="M6 3h9a3 3 0 0 1 3 3v1h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v2a3 3 0 0 1-3 3H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 2v14h9a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H6zm12 4v6h1a1 1 0 0 0 1-1V10a1 1 0 0 0-1-1h-1z"/>
-         </svg>`,
+        { icon: '<i data-lucide="gift" style="width:22px;height:22px;color:#FFB800;"></i>',
          label: "Buy 5 Get 1 Free",
          pts: 50,
          unlocked: points >= 50
         },
 
-        {icon: `<svg xmlns="http://www.w3.org/2000/svg"
-         width="22"
-         height="22"
-         viewBox="0 0 24 24"
-         fill="#FFB800">
-         <path d="M12 2c-1.1 0-2 .9-2 2v1H7a3 3 0 0 0-3 3v3h16V8a3 3 0 0 0-3-3h-3V4c0-1.1-.9-2-2-2zm-7 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9H5zm3 3h2v2H8v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"/>
-         </svg>`,
+        {icon: '<i data-lucide="cake" style="width:22px;height:22px;color:#FFB800;"></i>',
          label: "Birthday Free Drink",
          pts: 100,
          unlocked: points >= 100 
         },
         
-        { icon: `<svg xmlns="http://www.w3.org/2000/svg"
-         width="22"
-         height="22"
-         viewBox="0 0 24 24"
-         fill="none"
-         stroke="#FFB800"
-         stroke-width="2"
-         stroke-linecap="round">
-         <line x1="19" y1="5" x2="5" y2="19"/>
-         <circle cx="7" cy="7" r="2"/>
-         <circle cx="17" cy="17" r="2"/>
-         </svg>`,
+        { icon: '<i data-lucide="percent" style="width:22px;height:22px;color:#FFB800;"></i>',
          label: "10% Off Next Order",
          pts: 150,
          unlocked: points >= 150
          },
         
-        { icon: `<svg xmlns="http://www.w3.org/2000/svg"
-         width="22"
-         height="22"
-         viewBox="0 0 24 24"
-         fill="#FFB800">
-         <path d="M5 16l-2-9 6 4 3-6 3 6 6-4-2 9H5zm0 2h14v2H5z"/>
-         </svg>`,
+        { icon: '<i data-lucide="crown" style="width:22px;height:22px;color:#FFB800;"></i>',
          label: "VIP Table Access",
          pts: 200,
          unlocked: points >= 200
         },
         
-        {icon: `<svg xmlns="http://www.w3.org/2000/svg"
-         width="25"
-         height="25"
-         viewBox="0 0 24 24"
-         fill="#FFB800">
-         <path d="M7 2h10v3a5 5 0 0 1-4 4.9V13h3v2H8v-2h3V9.9A5 5 0 0 1 7 5V2zm2 2v1a3 3 0 1 0 6 0V4H9z"/>
-         </svg>
-         `,
+        {icon: '<i data-lucide="martini" style="width:25px;height:25px;color:#FFB800;"></i>',
          label: "Free Premium Shot",
          pts: 250,
          unlocked: points >= 250
         },
         
         
-        { icon: `<svg xmlns="http://www.w3.org/2000/svg"
-         width="22"
-         height="22"
-         viewBox="0 0 24 24"
-         fill="none"
-         stroke="#FFB800"
-         stroke-width="2">
-         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 22 12 18.56 5.82 22 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-        `,
+        { icon: '<i data-lucide="star" style="width:22px;height:22px;color:#FFB800;"></i>',
         label: "Gold VIP Status",
         pts: 300,
         unlocked: points >= 300
@@ -600,17 +508,14 @@
           <div style="font-size:11px;color:var(--muted2); display:flex; align-items:center; gap:6px;">
             ${p.pts} pts
             ${p.unlocked ? `
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#00C853" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/>
-            </svg>` : `
+            <i data-lucide="check" style="width:14px;height:14px;color:#00C853;"></i>` : `
 
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB800" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 0 1 6 0v3H9z"/>
-            </svg>`}
+            <i data-lucide="lock" style="width:14px;height:14px;color:#FFB800;"></i>`}
           </div>
 
         </div>
       `).join("");
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     // ── Settings
@@ -644,7 +549,7 @@
         // Update UI
         document.getElementById("welcomeName").textContent = name.split(" ")[0];
         document.getElementById("avatarBtn").textContent   = name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
-        showToast("Profile updated ✓", "green");
+        showToast('Profile updated <i data-lucide="check"></i>', "green");
 
       } catch (err) {
        console.error("Profile update failed:", err);
@@ -660,7 +565,7 @@
       if (nw !== conf) { showToast("Passwords don't match", "gold"); return; }
       if (nw.length < 6) { showToast("Password must be 6+ characters", "gold"); return; }
       // TODO: POST /auth/change-password
-      showToast("Password changed ✓", "green");
+      showToast('Password changed <i data-lucide="check"></i>', "green");
       document.getElementById("currentPw").value = "";
       document.getElementById("newPw").value = "";
       document.getElementById("confirmPw").value = "";
@@ -686,8 +591,9 @@
 
     function showToast(msg, type = "gold") {
       const t = document.getElementById("toast");
-      t.textContent = msg;
+      t.innerHTML = msg;
       t.className = "toast " + type + " show";
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       setTimeout(() => t.className = "toast", 3000);
     }
 

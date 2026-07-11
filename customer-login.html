@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -122,6 +124,12 @@
       background: var(--surface);
     }
     .pill span { font-size: 14px; }
+    .pill svg, .input-icon svg, .toggle-pw svg, .banner svg {
+      width: 15px; height: 15px;
+      stroke: currentColor;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
 
     /* ── Right Panel ── */
     .right {
@@ -330,10 +338,10 @@
         Welcome back to <span>the vibe</span>. Your table is waiting, your drinks are cold.
       </p>
       <div class="vibe-pills">
-        <div class="pill"><span>🍺</span> Premium Drinks</div>
-        <div class="pill"><span>🎶</span> Live Events</div>
-        <div class="pill"><span>🎁</span> Loyalty Rewards</div>
-        <div class="pill"><span>📍</span> Phuthaditjhaba</div>
+        <div class="pill"><i data-lucide="beer"></i> Premium Drinks</div>
+        <div class="pill"><i data-lucide="music"></i> Live Events</div>
+        <div class="pill"><i data-lucide="gift"></i> Loyalty Rewards</div>
+        <div class="pill"><i data-lucide="map-pin"></i> Phuthaditjhaba</div>
       </div>
     </div>
 
@@ -350,7 +358,7 @@
           <label>Email Address</label>
           <div class="input-wrap">
             <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
-            <span class="input-icon">📧</span>
+            <span class="input-icon"><i data-lucide="mail"></i></span>
           </div>
         </div>
 
@@ -359,8 +367,8 @@
           <label>Password</label>
           <div class="input-wrap">
             <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" id="loginPassword">
-            <span class="input-icon">🔒</span>
-            <button class="toggle-pw" type="button" onclick="togglePassword()" id="eyeBtn" aria-label="Show password">👁️</button>
+            <span class="input-icon"><i data-lucide="lock"></i></span>
+            <button class="toggle-pw" type="button" onclick="togglePassword()" id="eyeBtn" aria-label="Show password"><i data-lucide="eye"></i></button>
           </div>
         </div>
 
@@ -397,6 +405,7 @@
         document.getElementById('loginEmail').value = saved;
         document.getElementById('rememberMe').checked = true;
       }
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 
     // ── Toggle password visibility
@@ -405,18 +414,21 @@
       const btn   = document.getElementById('eyeBtn');
       if (input.type === 'password') {
         input.type = 'text';
-        btn.textContent = '🙈';
+        btn.innerHTML = '<i data-lucide="eye-off"></i>';
       } else {
         input.type = 'password';
-        btn.textContent = '👁️';
+        btn.innerHTML = '<i data-lucide="eye"></i>';
       }
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     // ── Banner helper
     function showBanner(msg, type) {
       const b = document.getElementById('loginBanner');
-      b.textContent = (type === 'error' ? '⚠️ ' : '✅ ') + msg;
+      const icon = type === 'error' ? 'alert-triangle' : 'check-circle';
+      b.innerHTML = `<i data-lucide="${icon}"></i> ${msg}`;
       b.className = 'banner ' + type;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
     function hideBanner() {
       const b = document.getElementById('loginBanner');

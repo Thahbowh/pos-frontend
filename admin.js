@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────
      CONFIG — change this if your URL differs
   ───────────────────────────────────────── */
-const API_BASE = 'https://task-api-clean-production.up.railway.app';
+  const API_BASE = 'https://task-api-clean-production.up.railway.app';
   const API_URL = `${API_BASE}/products`;
 
   function getToken() {
